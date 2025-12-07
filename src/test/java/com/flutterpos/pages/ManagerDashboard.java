@@ -1,5 +1,6 @@
 package com.flutterpos.pages;
 
+import io.appium.java_client.AppiumBy;
 import io.appium.java_client.AppiumDriver;
 import org.openqa.selenium.By;
 
@@ -8,17 +9,25 @@ public class ManagerDashboard {
     private AppiumDriver driver;
 
     // Page title
-    private By titleManager = By.xpath("//*[@text='Owner / Manager']");
-
+    private final By titleManager =
+            AppiumBy.xpath("//*[contains(@text,'Owner') or contains(@content-desc,'Owner')]");
     // Dashboard Tiles
-    private By tileAddUser = By.xpath("//*[@text='Add User']");
-    private By tileUserManagement = By.xpath("//*[@text='User Management']");
-    private By tileCreditors = By.xpath("//*[@text='Creditors']");
-    private By tileSalesReports = By.xpath("//*[@text='Sales Reports']");
-    private By tileInsights = By.xpath("//*[@text='Insights']");
-    private By tileProfitMargins = By.xpath("//*[@text='Profit Margins']");
-    private By tileAuditLogs = By.xpath("//*[@text='Audit Logs']");
-    private By tilePromotions = By.xpath("//*[@text='Promotions']");
+    private final By tileAddUser =
+            AppiumBy.xpath("//*[contains(@text,'Add User') or contains(@content-desc,'Add User')]");
+    private final By tileUserManagement =
+            AppiumBy.xpath("//*[contains(@text,'User Management') or contains(@content-desc,'User Management')]");
+    private final By tileCreditors =
+            AppiumBy.xpath("//*[contains(@text,'Creditors') or contains(@content-desc,'Creditors')]");
+    private final By tileSalesReports =
+            AppiumBy.xpath("//*[contains(@text,'Sales Reports') or contains(@content-desc,'Sales Reports')]");
+    private final By tileInsights =
+            AppiumBy.xpath("//*[contains(@text,'Insights') or contains(@content-desc,'Insights')]");
+    private final By tileProfitMargins =
+            AppiumBy.xpath("//*[contains(@text,'Profit Margins') or contains(@content-desc,'Profit Margins')]");
+    private final By tileAuditLogs =
+            AppiumBy.xpath("//*[contains(@text,'Audit Logs') or contains(@content-desc,'Audit Logs')]");
+    private final By tilePromotions =
+            AppiumBy.xpath("//*[contains(@text,'Promotions') or contains(@content-desc,'Promotions')]");
 
     public ManagerDashboard(AppiumDriver driver) {  // <-- constructor
         this.driver = driver;
@@ -36,40 +45,48 @@ public class ManagerDashboard {
     public void openAddUser() {
         System.out.println("[ACTION] Clicking Add User tile");
         driver.findElement(tileAddUser).click();
+        driver.navigate().back();
     }
 
     public void openUserManagement() {
         System.out.println("[ACTION] Clicking User Management tile");
         driver.findElement(tileUserManagement).click();
+        driver.navigate().back();
     }
 
     public void openCreditors() {
         System.out.println("[ACTION] Clicking Creditors tile");
         driver.findElement(tileCreditors).click();
+        driver.navigate().back();
     }
 
     public void openSalesReports() {
         System.out.println("[ACTION] Clicking Sales Reports tile");
         driver.findElement(tileSalesReports).click();
+        driver.navigate().back();
     }
 
     public void openInsights() {
         System.out.println("[ACTION] Clicking Insights tile");
         driver.findElement(tileInsights).click();
+        driver.navigate().back();
     }
 
     public void openProfitMargins() {
         System.out.println("[ACTION] Clicking Profit Margins tile");
         driver.findElement(tileProfitMargins).click();
+        driver.navigate().back();
     }
 
     public void openAuditLogs() {
         System.out.println("[ACTION] Clicking Audit Logs tile");
         driver.findElement(tileAuditLogs).click();
+        driver.navigate().back();
     }
 
     public void openPromotions() {
         System.out.println("[ACTION] Clicking Promotions tile");
         driver.findElement(tilePromotions).click();
+        driver.navigate().back();
     }
 }

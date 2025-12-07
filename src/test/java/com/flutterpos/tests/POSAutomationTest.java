@@ -66,12 +66,11 @@ package com.flutterpos.tests;//package com.flutterpos.tests;
 
 import com.flutterpos.pages.LoginPage;
 import com.flutterpos.pages.ManagerDashboard;
+import com.flutterpos.utils.AppiumDriverManager;
+import io.appium.java_client.android.AndroidDriver;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
-
-import com.flutterpos.utils.AppiumDriverManager;
-import io.appium.java_client.android.AndroidDriver;
 
 public class POSAutomationTest {
 
@@ -81,13 +80,16 @@ public class POSAutomationTest {
 
     @BeforeClass
     public void setUp() {
-        driver = AppiumDriverManager.getDriver();  // <-- FIX
+        driver = AppiumDriverManager.getDriver();
+        System.out.println("🔍 Package at test start: " + driver.getCurrentPackage());
         login = new LoginPage(driver);
         dashboard = new ManagerDashboard(driver);
     }
 
     @Test
     public void testManagerDashboardFlow() {
+        // Make sure app is in login state
+        login.ensureOnLoginScreen();
 
         // login first
         login.loginAsManager("achintha@gmail.com", "12345678");
@@ -97,6 +99,14 @@ public class POSAutomationTest {
 
         // click tiles
         dashboard.openAddUser();
+        dashboard.openUserManagement();
+        dashboard.openCreditors();
+        dashboard.openSalesReports();
+        dashboard.openInsights();
+        dashboard.openProfitMargins();
+        dashboard.openAuditLogs();
+        dashboard.openPromotions();
     }
 }
+
 
