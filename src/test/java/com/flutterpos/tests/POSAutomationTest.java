@@ -1,71 +1,10 @@
-package com.flutterpos.tests;//package com.flutterpos.tests;
-//
-//import com.flutterpos.pages.LoginPage;
-//import com.flutterpos.utils.AppiumDriverManager;
-//import io.appium.java_client.AppiumDriver;
-//import org.testng.annotations.AfterClass;
-//import org.testng.annotations.BeforeClass;
-//import org.testng.annotations.Test;
-//
-//import static org.testng.Assert.assertTrue;
-//
-//public class POSAutomationTests {
-//
-//    private AppiumDriver driver;
-//    private LoginPage loginPage;
-//
-//    @BeforeClass
-//    public void setUp() {
-//        System.out.println("Setting up test...");
-//        driver = AppiumDriverManager.getDriver();
-//        loginPage = new LoginPage(driver);
-//        System.out.println("Test setup completed!");
-//    }
-//
-//    @Test(priority = 1)
-//    public void testLogin() {
-//        System.out.println("Starting login test...");
-//        loginPage.login("achintha@gmail.com", "12345678");
-//        System.out.println("Login test completed!");
-//        // Add a small delay to see the action
-//        try {
-//            Thread.sleep(3000);
-//        } catch (InterruptedException e) {
-//            e.printStackTrace();
-//        }
-//    }
-//
-//    @Test(priority = 2)
-//    public void testAppOpen() {
-//        System.out.println("Testing if app opened successfully...");
-//
-//        // Get page source to verify app opened
-//        String pageSource = driver.getPageSource();
-//        System.out.println("Page source length: " + pageSource.length());
-//
-//        // Check if app contains expected elements
-//        assertTrue(pageSource.length() > 0, "Page source should not be empty");
-//
-//        // For Android, get package info if available
-//        if (driver instanceof io.appium.java_client.android.AndroidDriver) {
-//            io.appium.java_client.android.AndroidDriver androidDriver =
-//                    (io.appium.java_client.android.AndroidDriver) driver;
-//            String currentPackage = androidDriver.getCurrentPackage();
-//            System.out.println("Current package: " + currentPackage);
-//        }
-//
-//        System.out.println("App opened successfully!");
-//    }
-//    @AfterClass
-//    public void tearDown() {
-//        System.out.println("Tearing down test...");
-//        AppiumDriverManager.quitDriver();
-//        System.out.println("Test completed!");
-//    }
-//}
+package com.flutterpos.tests;
 
+import com.flutterpos.pages.AddUserPage;
 import com.flutterpos.pages.LoginPage;
 import com.flutterpos.pages.ManagerDashboard;
+import com.flutterpos.pages.SalesReport;
+import com.flutterpos.pages.UsersListPage;
 import com.flutterpos.utils.AppiumDriverManager;
 import io.appium.java_client.android.AndroidDriver;
 import org.testng.Assert;
@@ -77,6 +16,7 @@ public class POSAutomationTest {
     private AndroidDriver driver;
     private LoginPage login;
     private ManagerDashboard dashboard;
+    private AddUserPage addUserPage;
 
     @BeforeClass
     public void setUp() {
@@ -88,16 +28,16 @@ public class POSAutomationTest {
 
     @Test
     public void testManagerDashboardFlow() {
-        // Make sure app is in login state
+        // 1) Make sure app is in login state
         login.ensureOnLoginScreen();
 
-        // login first
+        // 2) Login as Manager
         login.loginAsManager("achintha@gmail.com", "12345678");
 
-        // verify dashboard
+        // 3) Verify dashboard
         Assert.assertTrue(dashboard.isDashboardVisible(), "Dashboard not visible after login");
 
-        // click tiles
+        // 4) Click tiles (navigate but come back to dashboard)
         dashboard.openAddUser();
         dashboard.openUserManagement();
         dashboard.openCreditors();
@@ -106,7 +46,101 @@ public class POSAutomationTest {
         dashboard.openProfitMargins();
         dashboard.openAuditLogs();
         dashboard.openPromotions();
+
+        // 5) Now navigate AGAIN to Add User, but STAY there
+        dashboard.openAddUserAndStay();
+
+        UsersListPage usersListPage = new UsersListPage(driver);
+        Assert.assertTrue(usersListPage.isVisible(), "Users list page is not visible after Add User tile");
+
+        // 6) Click the 'Add User' button/FAB on that page
+        usersListPage.tapAddUserButton();
+
+        // 7) Use AddUserPage to create a new user
+        addUserPage = new AddUserPage(driver);
+
+        // Create a unique email each run to avoid "email already exists"
+        String uniqueEmail = "autotest+" + System.currentTimeMillis() + "@example.com";
+
+        addUserPage.createUser(
+                "Auto Test Cashier",
+                uniqueEmail,
+                "0771234569",
+                "123456779V",
+                "Password1"
+        );
+
+        // 8) After createUser(), the real app keeps you on the Users list page
+        UsersListPage usersListAfterCreate = new UsersListPage(driver);
+        Assert.assertTrue(
+                usersListAfterCreate.isVisible(),
+                "Users list page is not visible after creating user"
+        );
+
+        // (Optional) Here you could assert that the new user/email is visible in the list
+
+        // 9) Now go BACK to Manager Dashboard from Users list
+        System.out.println("[ACTION] Going back from Users list to Manager Dashboard...");
+        driver.navigate().back();
+
+        Assert.assertTrue(
+                dashboard.isDashboardVisible(),
+                "Dashboard not visible after going back from Users list"
+        );
+
+        // 10) Go to Sales Report screen and stay there
+        dashboard.openSalesReportAndStay();
+
+        // 11) Use SalesReport page object to open each report tile
+        SalesReport salesReport = new SalesReport(driver);
+
+        salesReport.openItemDetailsReport();
+        salesReport.openCustomerDetailsReport();
+        salesReport.openUserDetailsReport();
+        salesReport.openInvoiceListReport();
+        salesReport.openRefundBillsReport();
+        salesReport.openCardPayment();
+        salesReport.openCashPayment();
+        salesReport.openPaymentReport();
+        salesReport.openDailySalesReport();
+        salesReport.openProfitMarginsReport();
+        salesReport.openCreditSalesReport();
+        salesReport.openCashEntryReport();
+        salesReport.openDiscountGranted();
+        salesReport.openUnpaidPurchaseReport();
+        salesReport.openSupplierListReport();
+        salesReport.openStockReport();
+        salesReport.openTransactionHistoryReport();
+        salesReport.openReorderHistoryReport();
+        salesReport.openLowStockWarningReport();
+
+
+        // 12) Back from Sales Report → Manager Dashboard
+        System.out.println("[ACTION] Going back from Sales Report to Manager Dashboard...");
+        driver.navigate().back();
+        Assert.assertTrue(
+                dashboard.isDashboardVisible(),
+                "Dashboard not visible after going back from Sales Report"
+        );
+
+        // 13) Again navigate to Users list page
+        System.out.println("[ACTION] Opening Users list again from Dashboard...");
+        dashboard.openAddUserAndStay();   // or dashboard.openUserManagementAndStay() if you have it
+
+        UsersListPage usersListForSearch = new UsersListPage(driver);
+        Assert.assertTrue(
+                usersListForSearch.isVisible(),
+                "Users list page is not visible for search"
+        );
+
+        // 14) Search bar: search 'Achintha'
+        usersListForSearch.searchUser("Achintha");
+
+        // 15) Assert that user 'Achintha' is visible in the filtered list
+        Assert.assertTrue(
+                usersListForSearch.isUserVisibleByName("Achintha"),
+                "User 'Achintha' not visible after search"
+        );
     }
+
 }
-
-

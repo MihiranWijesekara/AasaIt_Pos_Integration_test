@@ -89,4 +89,15 @@ public class ManagerDashboard {
         driver.findElement(tilePromotions).click();
         driver.navigate().back();
     }
+
+    public void openAddUserAndStay() {
+        System.out.println("[ACTION] Clicking Add User tile (stay on page)");
+        driver.findElement(tileAddUser).click();
+    }
+
+    public void openSalesReportAndStay() {
+        System.out.println("[ACTION] Clicking Sales Report tile (stay on page)");
+        driver.findElement(tileSalesReports).click();
+    }
+
 }
