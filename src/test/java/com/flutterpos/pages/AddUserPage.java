@@ -82,14 +82,43 @@ public class AddUserPage {
     }
 
     /** Hide soft keyboard if it is visible */
-    private void hideKeyboardIfVisible() {
-        try {
-            driver.hideKeyboard();
-            System.out.println("⌨️ Soft keyboard hidden.");
-        } catch (Exception e) {
-            System.out.println("ℹ️ hideKeyboard() failed or keyboard not visible: " + e.getMessage());
-        }
-    }
+    /** Hide soft keyboard if it is visible – with a tap-out fallback for Flutter */
+//    private void hideKeyboardIfVisible() {
+//        try {
+//            driver.hideKeyboard();
+//            System.out.println("⌨️ Soft keyboard hidden via driver.hideKeyboard().");
+//            return;
+//        } catch (Exception e) {
+//            System.out.println("ℹ️ hideKeyboard() failed: " + e.getMessage());
+//        }
+//
+//        // Fallback: tap on a safe area at the top of the screen (outside any TextField)
+//        try {
+//            Dimension size = driver.manage().window().getSize();
+//            int x = size.width / 2;
+//            int y = (int) (size.height * 0.1);  // 10% from top, usually empty app bar area
+//
+//            System.out.println("🖱 Tapping at (" + x + "," + y + ") to dismiss keyboard...");
+//
+//            PointerInput finger = new PointerInput(PointerInput.Kind.TOUCH, "finger");
+//            Sequence tap = new Sequence(finger, 1);
+//
+//            tap.addAction(finger.createPointerMove(
+//                    Duration.ZERO,
+//                    PointerInput.Origin.viewport(),
+//                    x, y
+//            ));
+//            tap.addAction(finger.createPointerDown(PointerInput.MouseButton.LEFT.asArg()));
+//            tap.addAction(finger.createPointerUp(PointerInput.MouseButton.LEFT.asArg()));
+//
+//            driver.perform(Collections.singletonList(tap));
+//
+//            System.out.println("✅ Tap-out performed to hide keyboard.");
+//        } catch (Exception e2) {
+//            System.out.println("❌ Tap-out to hide keyboard failed: " + e2.getMessage());
+//        }
+//    }
+
 
     /**
      * Find all EditText fields that are password-type inputs, using the native
@@ -139,6 +168,7 @@ public class AddUserPage {
             );
         }
 
+
         // 0: Full Name
         WebElement fullNameField = initialFields.get(0);
         fullNameField.click();
@@ -162,6 +192,7 @@ public class AddUserPage {
         nicField.click();
         nicField.clear();
         nicField.sendKeys(nic);
+
 
         // -------- 2) SCROLL TO ENSURE PASSWORD FIELDS ARE IN VIEW --------
         System.out.println("🔽 Scrolling to reveal password fields...");
@@ -214,16 +245,20 @@ public class AddUserPage {
             System.out.println("⚠️ No password=true fields. Falling back to last two EditTexts as pwd + confirm.");
         }
 
+
         // -------- 4) TYPE PASSWORD + CONFIRM PASSWORD --------
         pwdField.click();
         pwdField.clear();
         pwdField.sendKeys(password);
+
 
         confirmField.click();
         confirmField.clear();
         confirmField.sendKeys(password);
 
         // Hide keyboard so it doesn't cover the button
+//        hideKeyboardIfVisible();
+
         System.out.println("✅ Filled Add User form (name, email, contact, NIC, password, confirm).");
     }
 

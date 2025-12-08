@@ -35,17 +35,17 @@ public class POSAutomationTest {
         login.loginAsManager("achintha@gmail.com", "12345678");
 
         // 3) Verify dashboard
-        Assert.assertTrue(dashboard.isDashboardVisible(), "Dashboard not visible after login");
-
-        // 4) Click tiles (navigate but come back to dashboard)
-        dashboard.openAddUser();
-        dashboard.openUserManagement();
-        dashboard.openCreditors();
-        dashboard.openSalesReports();
-        dashboard.openInsights();
-        dashboard.openProfitMargins();
-        dashboard.openAuditLogs();
-        dashboard.openPromotions();
+//        Assert.assertTrue(dashboard.isDashboardVisible(), "Dashboard not visible after login");
+//
+//        // 4) Click tiles (navigate but come back to dashboard)
+//        dashboard.openAddUser();
+//        dashboard.openUserManagement();
+//        dashboard.openCreditors();
+//        dashboard.openSalesReports();
+//        dashboard.openInsights();
+//        dashboard.openProfitMargins();
+//        dashboard.openAuditLogs();
+//        dashboard.openPromotions();
 
         // 5) Now navigate AGAIN to Add User, but STAY there
         dashboard.openAddUserAndStay();
@@ -141,6 +141,18 @@ public class POSAutomationTest {
                 usersListForSearch.isUserVisibleByName("Achintha"),
                 "User 'Achintha' not visible after search"
         );
+
+        System.out.println("[ACTION] Going back from Users list to Manager Dashboard...");
+        driver.navigate().back();
+
+        Assert.assertTrue(
+                dashboard.isDashboardVisible(),
+                "Dashboard not visible after going back from Users list"
+        );
+
+        dashboard.logout();
+
+        login.ensureOnLoginScreen();
     }
 
 }

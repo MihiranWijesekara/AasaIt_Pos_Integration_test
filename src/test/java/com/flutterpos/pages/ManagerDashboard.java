@@ -3,14 +3,21 @@ package com.flutterpos.pages;
 import io.appium.java_client.AppiumBy;
 import io.appium.java_client.AppiumDriver;
 import org.openqa.selenium.By;
+import org.openqa.selenium.WebElement;
+import org.openqa.selenium.support.ui.ExpectedConditions;
+import org.openqa.selenium.support.ui.WebDriverWait;
+
+import java.time.Duration;
 
 public class ManagerDashboard {
 
-    private AppiumDriver driver;
+    private final AppiumDriver driver;
+    private final WebDriverWait wait;
 
     // Page title
     private final By titleManager =
             AppiumBy.xpath("//*[contains(@text,'Owner') or contains(@content-desc,'Owner')]");
+
     // Dashboard Tiles
     private final By tileAddUser =
             AppiumBy.xpath("//*[contains(@text,'Add User') or contains(@content-desc,'Add User')]");
@@ -29,10 +36,14 @@ public class ManagerDashboard {
     private final By tilePromotions =
             AppiumBy.xpath("//*[contains(@text,'Promotions') or contains(@content-desc,'Promotions')]");
 
-    public ManagerDashboard(AppiumDriver driver) {  // <-- constructor
-        this.driver = driver;
-    }
+    // 🔐 Logout icon from StockAppBar (tooltip: 'Logout')
+    private final By btnLogout =
+            AppiumBy.accessibilityId("Logout"); // or "logout_button" if you add Semantics
 
+    public ManagerDashboard(AppiumDriver driver) {
+        this.driver = driver;
+        this.wait = new WebDriverWait(driver, Duration.ofSeconds(15));
+    }
 
     // Check Dashboard visible
     public boolean isDashboardVisible() {
@@ -41,7 +52,7 @@ public class ManagerDashboard {
         return visible;
     }
 
-    // Actions with Logs
+    // --- Tile actions (same as before) ---
     public void openAddUser() {
         System.out.println("[ACTION] Clicking Add User tile");
         driver.findElement(tileAddUser).click();
@@ -100,4 +111,13 @@ public class ManagerDashboard {
         driver.findElement(tileSalesReports).click();
     }
 
+    // 🔚 Logout
+    public void logout() {
+        System.out.println("[ACTION] Clicking Logout icon on Manager Dashboard...");
+        WebElement logoutIcon = wait.until(
+                ExpectedConditions.elementToBeClickable(btnLogout)
+        );
+        logoutIcon.click();
+        System.out.println("✅ Logout icon tapped.");
+    }
 }
