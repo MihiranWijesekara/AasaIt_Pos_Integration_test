@@ -93,6 +93,12 @@ public class stockKeeperDashboard {
         driver.findElement(tileProfitMargins).click();
         tapBackButton();
     }
+
+    public void openAddCategoryAndStay() {
+        System.out.println("[ACTION] Clicking Add Category tile (stay on page)");
+        driver.findElement(tileAddCategory).click();
+    }
+
     public void logout() {
         System.out.println("[ACTION] Clicking Logout icon on Manager Dashboard...");
         WebElement logoutIcon = wait.until(

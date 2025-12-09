@@ -5,6 +5,7 @@ import com.flutterpos.pages.LoginPage;
 import com.flutterpos.pages.ManagerDashboard;
 import com.flutterpos.pages.SalesReport;
 import com.flutterpos.pages.UsersListPage;
+import com.flutterpos.pages.stockKeeper.AddCategory;
 import com.flutterpos.pages.stockKeeper.stockKeeperDashboard;
 import com.flutterpos.utils.AppiumDriverManager;
 import io.appium.java_client.android.AndroidDriver;
@@ -19,6 +20,7 @@ public class POSAutomationTest {
     private ManagerDashboard dashboard;
     private AddUserPage addUserPage;
     private stockKeeperDashboard stockKeeper;
+    private AddCategory addCategoryPage;
 
     @BeforeClass
     public void setUp() {
@@ -27,6 +29,7 @@ public class POSAutomationTest {
         login = new LoginPage(driver);
         dashboard = new ManagerDashboard(driver);
         stockKeeper = new stockKeeperDashboard(driver);
+        addCategoryPage = new AddCategory(driver);
     }
 
 //    @Test
@@ -170,12 +173,37 @@ public class POSAutomationTest {
         // 3) Verify dashboard
         Assert.assertTrue(stockKeeper.isDashboardVisible(), "Dashboard not visible after login");
 
-        stockKeeper.openAddCategory();
-        stockKeeper.openAddItem();
-        stockKeeper.openSuppliers();
-        stockKeeper.openInsights();
-        stockKeeper.openSalesReport();
-        stockKeeper.openProfitMargins();
+//        stockKeeper.openAddCategory();
+//        stockKeeper.openAddItem();
+//        stockKeeper.openSuppliers();
+//        stockKeeper.openInsights();
+//        stockKeeper.openSalesReport();
+//        stockKeeper.openProfitMargins();
+
+        stockKeeper.openAddCategoryAndStay();
+
+        addCategoryPage.openAddCategoryForm();
+        // 6) Open the Add Category form (FAB at bottom right)
+        addCategoryPage.openAddCategoryForm();
+        // 7) Create unique category name (no image)
+        String categoryName = "Auto Category " + System.currentTimeMillis();
+        addCategoryPage.enterCategoryName(categoryName);
+        // 8) Tap "Save Category" button
+        addCategoryPage.tapSaveCategory();
+
+        // 9) Assert success snackbar visible
+        boolean snackOk = addCategoryPage.waitForSuccessSnackBar();
+        Assert.assertTrue(
+                snackOk,
+                "Expected success snackbar after saving category"
+        );
+        // 10) Assert newly added category appears in list
+        boolean exists = addCategoryPage.isCategoryInList(categoryName);
+        Assert.assertTrue(
+                exists,
+                "New category not found in list: " + categoryName
+        );
+
 
         dashboard.logout();
 
