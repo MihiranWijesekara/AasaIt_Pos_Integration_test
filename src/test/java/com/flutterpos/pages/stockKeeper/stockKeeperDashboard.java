@@ -27,7 +27,7 @@ public class stockKeeperDashboard {
             AppiumBy.xpath("//*[contains(@text,'Suppliers') or contains(@content-desc,'Suppliers')]");
     private final By tileInsights =
             AppiumBy.xpath("//*[contains(@text,'Insights') or contains(@content-desc,'Insights')]");
-    private final By tileSalesReports =
+    private final By tileInventory =
             AppiumBy.xpath("//*[contains(@text,'Inventory') or contains(@content-desc,'Inventory')]");
     private final By tileProfitMargins =
             AppiumBy.xpath("//*[contains(@text,'Supplier Request') or contains(@content-desc,'Supplier Request')]");
@@ -82,9 +82,9 @@ public class stockKeeperDashboard {
         tapBackButton();
     }
 
-    public void openSalesReport() {
+    public void openInventory() {
         System.out.println("[ACTION] Clicking Sales Report tile");
-        driver.findElement(tileSalesReports).click();
+        driver.findElement(tileInventory).click();
         tapBackButton();
     }
 
@@ -97,6 +97,14 @@ public class stockKeeperDashboard {
     public void openAddCategoryAndStay() {
         System.out.println("[ACTION] Clicking Add Category tile (stay on page)");
         driver.findElement(tileAddCategory).click();
+    }
+    public void openAddItemAndStay() {
+        System.out.println("[ACTION] Clicking Add Item tile (stay on page)");
+        driver.findElement(tileAddItem).click();
+    }
+    public void openInventoryAndStay() {
+        System.out.println("[ACTION] Clicking Inventory tile (stay on page)");
+        driver.findElement(tileInventory).click();
     }
 
     public void logout() {
