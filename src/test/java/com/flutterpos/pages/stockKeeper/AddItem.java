@@ -19,58 +19,48 @@ public class AddItem {
 
     public AddItem(AndroidDriver driver) {
         this.driver = driver;
-        this.wait = new WebDriverWait(driver, Duration.ofSeconds(20));
+        this.wait = new WebDriverWait(driver, Duration.ofSeconds(25));
     }
 
     // ===== LOCATORS =====
 
     // All EditTexts in this screen
-    private final By editTexts =
-            AppiumBy.className("android.widget.EditText");
+    private final By editTexts = AppiumBy.className("android.widget.EditText");
 
-    /**
-     * Category "field" – tap the container that has a text like
-     * "Select Category" or "Category".
-     */
-    private final By categoryField =
-            AppiumBy.xpath(
-                    "//android.view.ViewGroup[" +
-                            ".//*[contains(@text,'Select Category') " +
-                            "   or contains(@text,'Category') " +
-                            "   or contains(@content-desc,'Select Category') " +
-                            "   or contains(@content-desc,'Category')" +
-                            "]" +
-                            "]"
-            );
-
-    /**
-     * Supplier "field"
-     */
-    private final By supplierField =
-            AppiumBy.xpath(
-                    "//android.view.ViewGroup[" +
-                            ".//*[contains(@text,'Select Supplier') " +
-                            "   or contains(@text,'Supplier') " +
-                            "   or contains(@content-desc,'Select Supplier') " +
-                            "   or contains(@content-desc,'Supplier')" +
-                            "]" +
-                            "]"
-            );
-
-    /**
-     * Generic options inside the bottom sheet / list when a field is opened.
-     */
-    private final By dropdownOptions = AppiumBy.xpath(
-            "//android.widget.ListView//android.widget.TextView" +
-                    " | //android.widget.ScrollView//android.widget.TextView" +
-                    " | //android.view.ViewGroup//android.widget.TextView"
+    // Category container (Relations section)
+    private final By categoryField = AppiumBy.xpath(
+            "//android.view.ViewGroup[" +
+                    ".//*[contains(@text,'Select Category') " +
+                    "or contains(@text,'Category') " +
+                    "or contains(@content-desc,'Select Category') " +
+                    "or contains(@content-desc,'Category')]" +
+                    "]"
     );
 
-    // Save button
+    // Supplier container (Relations section)
+    private final By supplierField = AppiumBy.xpath(
+            "//android.view.ViewGroup[" +
+                    ".//*[contains(@text,'Select Supplier') " +
+                    "or contains(@text,'Supplier') " +
+                    "or contains(@content-desc,'Select Supplier') " +
+                    "or contains(@content-desc,'Supplier')]" +
+                    "]"
+    );
+
+    /**
+     * ✅ FIXED: Dropdown options only from actual list containers.
+     * Flutter bottom sheets often use RecyclerView.
+     * (REMOVED the dangerous ViewGroup//TextView wildcard)
+     */
+    private final By dropdownOptions = AppiumBy.xpath(
+            "//androidx.recyclerview.widget.RecyclerView//android.widget.TextView" +
+                    " | //android.widget.ListView//android.widget.TextView"
+    );
+
+    // Buttons (Save Product / Reset)
     private final By btnSaveProduct =
             AppiumBy.xpath("//*[contains(@text,'Save Product') or contains(@content-desc,'Save Product')]");
 
-    // Reset button
     private final By btnReset =
             AppiumBy.xpath("//*[contains(@text,'Reset') or contains(@content-desc,'Reset')]");
 
@@ -78,19 +68,19 @@ public class AddItem {
     private final By snackBarText =
             AppiumBy.xpath("//*[contains(@text,'Item saved')]");
 
+    // (Optional) Edit mode button text
+    private final By btnUpdateProduct =
+            AppiumBy.xpath("//*[contains(@text,'Update Product') or contains(@content-desc,'Update Product')]");
+
     // ===== BASIC HELPERS =====
 
     private List<WebElement> getAllEditTexts() {
-        return wait.until(
-                ExpectedConditions.presenceOfAllElementsLocatedBy(editTexts)
-        );
+        return wait.until(ExpectedConditions.presenceOfAllElementsLocatedBy(editTexts));
     }
 
     private void typeInto(WebElement el, String text) {
-        el.click();
-        try {
-            el.clear();
-        } catch (Exception ignore) {}
+        wait.until(ExpectedConditions.elementToBeClickable(el)).click();
+        try { el.clear(); } catch (Exception ignore) {}
         el.sendKeys(text);
     }
 
@@ -106,17 +96,9 @@ public class AddItem {
         PointerInput finger = new PointerInput(PointerInput.Kind.TOUCH, "finger");
         Sequence swipe = new Sequence(finger, 1);
 
-        swipe.addAction(finger.createPointerMove(
-                Duration.ZERO,
-                PointerInput.Origin.viewport(),
-                startX, startY
-        ));
+        swipe.addAction(finger.createPointerMove(Duration.ZERO, PointerInput.Origin.viewport(), startX, startY));
         swipe.addAction(finger.createPointerDown(PointerInput.MouseButton.LEFT.asArg()));
-        swipe.addAction(finger.createPointerMove(
-                Duration.ofMillis(400),
-                PointerInput.Origin.viewport(),
-                startX, endY
-        ));
+        swipe.addAction(finger.createPointerMove(Duration.ofMillis(450), PointerInput.Origin.viewport(), startX, endY));
         swipe.addAction(finger.createPointerUp(PointerInput.MouseButton.LEFT.asArg()));
 
         driver.perform(Collections.singletonList(swipe));
@@ -124,165 +106,203 @@ public class AddItem {
 
     /**
      * Scrolls up to maxSwipes times until at least one element matching locator
-     * becomes present in the UI tree. Returns the first found element or throws.
+     * becomes present in the UI tree.
      */
     private WebElement scrollUntilVisible(By locator, String description, int maxSwipes) {
-        for (int i = 0; i < maxSwipes; i++) {
+        for (int i = 0; i <= maxSwipes; i++) {
             List<WebElement> elements = driver.findElements(locator);
-            if (!elements.isEmpty()) {
+            if (!elements.isEmpty() && elements.get(0).isDisplayed()) {
                 System.out.println("✅ " + description + " visible after " + i + " swipe(s)");
                 return elements.get(0);
             }
             swipeUpOnce();
         }
-        throw new NoSuchElementException(
-                "Could not find " + description + " after " + maxSwipes + " swipes"
-        );
+        throw new NoSuchElementException("Could not find " + description + " after " + maxSwipes + " swipes");
     }
 
+    /**
+     * ✅ NEW: Wait until dropdown list container appears after tapping category/supplier.
+     */
+    private void waitForDropdownToOpen() {
+        wait.until(ExpectedConditions.or(
+                ExpectedConditions.presenceOfElementLocated(AppiumBy.className("androidx.recyclerview.widget.RecyclerView")),
+                ExpectedConditions.presenceOfElementLocated(AppiumBy.className("android.widget.ListView"))
+        ));
+    }
+
+    /**
+     * ✅ FIXED: Select first REAL option (skip headers like "Select", skip Cancel/Close)
+     */
     private void selectFirstDropdownOption() {
         List<WebElement> options = wait.until(
                 ExpectedConditions.visibilityOfAllElementsLocatedBy(dropdownOptions)
         );
-        if (options.isEmpty()) {
-            throw new IllegalStateException("No options found in dropdown");
-        }
 
         for (WebElement opt : options) {
             try {
                 String txt = opt.getText();
-                if (txt != null && !txt.trim().isEmpty()) {
+                if (txt == null) txt = "";
+                txt = txt.trim();
+
+                if (!txt.isEmpty()
+                        && !txt.toLowerCase().contains("select")
+                        && !txt.equalsIgnoreCase("cancel")
+                        && !txt.equalsIgnoreCase("close")) {
                     opt.click();
                     System.out.println("✅ Selected dropdown option: " + txt);
                     return;
                 }
             } catch (Exception ignore) {}
         }
-        options.get(0).click();
-        System.out.println("⚠️ Fallback: clicked first dropdown TextView (text may be empty).");
+
+        throw new IllegalStateException("No valid dropdown option found to select.");
     }
 
-    // ===== FIELD GETTERS =====
+    private boolean isEditMode() {
+        return !driver.findElements(btnUpdateProduct).isEmpty();
+    }
+
+    // ===== FIELD GETTERS (index-based) =====
 
     private WebElement getProductNameField() {
         List<WebElement> fields = getAllEditTexts();
-        if (fields.size() < 1) {
-            throw new IllegalStateException("No EditText fields found for Product Name");
-        }
         return fields.get(0);
     }
 
-    private WebElement getInitialQuantityField() {
+    private WebElement getBarcodeField() {
         List<WebElement> fields = getAllEditTexts();
-        if (fields.size() < 3) {
-            throw new IllegalStateException("Not enough EditText fields for Initial Quantity");
-        }
-        return fields.get(2);
+        return fields.get(1);
+    }
+
+    private WebElement getInitialQuantityField() {
+        // Add mode only
+        return getAllEditTexts().get(2);
     }
 
     private WebElement getUnitCostField() {
-        List<WebElement> fields = getAllEditTexts();
-        if (fields.size() < 4) {
-            throw new IllegalStateException("Not enough EditText fields for Unit Cost");
-        }
-        return fields.get(3);
+        // Add mode only
+        return getAllEditTexts().get(3);
     }
 
     private WebElement getSalesPriceField() {
-        List<WebElement> fields = getAllEditTexts();
-        if (fields.size() < 5) {
-            throw new IllegalStateException("Not enough EditText fields for Sales Price");
-        }
-        return fields.get(4);
+        // Add mode only
+        return getAllEditTexts().get(4);
     }
 
     private WebElement getLowStockField() {
+        // ✅ Fix: low stock index changes in Edit mode
         List<WebElement> fields = getAllEditTexts();
-        if (fields.size() < 6) {
-            throw new IllegalStateException("Not enough EditText fields for Low-stock Warning");
+        if (isEditMode()) {
+            // Edit mode: name(0), barcode(1), lowStock(2)
+            return fields.get(2);
         }
+        // Add mode: name(0), barcode(1), qty(2), cost(3), price(4), lowStock(5)
         return fields.get(5);
     }
 
     // ===== FIELD-LEVEL ACTIONS =====
 
-    public void fillBasicInfo(String productName) {
-        WebElement nameField = getProductNameField();
-        typeInto(nameField, productName);
+    public void fillProductName(String productName) {
+        typeInto(getProductNameField(), productName);
         System.out.println("✅ Product name entered: " + productName);
     }
 
-    public void enterInitialQuantity(String quantity) {
-        WebElement field = getInitialQuantityField();
-        typeInto(field, quantity);
-        System.out.println("✅ Initial quantity entered: " + quantity);
+    public void fillBarcode(String barcode) {
+        typeInto(getBarcodeField(), barcode);
+        System.out.println("✅ Barcode entered: " + barcode);
     }
 
-    public void enterUnitCost(String unitCost) {
-        WebElement field = getUnitCostField();
-        typeInto(field, unitCost);
-        System.out.println("✅ Unit cost entered: " + unitCost);
+    public void fillPricesAndStockIfAddMode(String qty, String unitCost, String salesPrice) {
+        if (!isEditMode()) {
+            typeInto(getInitialQuantityField(), qty);
+            System.out.println("✅ Initial quantity entered: " + qty);
+
+            typeInto(getUnitCostField(), unitCost);
+            System.out.println("✅ Unit cost entered: " + unitCost);
+
+            typeInto(getSalesPriceField(), salesPrice);
+            System.out.println("✅ Sales price entered: " + salesPrice);
+        } else {
+            System.out.println("⚠️ Edit mode detected → skipping qty/unitCost/salesPrice (not shown in UI)");
+        }
     }
 
-    public void enterSalesPrice(String salesPrice) {
-        WebElement field = getSalesPriceField();
-        typeInto(field, salesPrice);
-        System.out.println("✅ Sales price entered: " + salesPrice);
-    }
-
-    public void enterLowStock(String lowStockThreshold) {
-        WebElement field = getLowStockField();
-        typeInto(field, lowStockThreshold);
+    public void fillLowStock(String lowStockThreshold) {
+        typeInto(getLowStockField(), lowStockThreshold);
         System.out.println("✅ Low-stock warning entered: " + lowStockThreshold);
     }
 
-    // ===== RELATIONS & ACTION BUTTONS =====
+    // ===== RELATIONS (CATEGORY + SUPPLIER) =====
 
-    public void selectCategoryAndSupplier() {
-        // --- Category ---
-        try {
-            WebElement cat = scrollUntilVisible(categoryField, "Category field", 6);
-            wait.until(ExpectedConditions.elementToBeClickable(cat)).click();
-            System.out.println("✅ Category field tapped");
-            selectFirstDropdownOption();
-        } catch (Exception e) {
-            System.out.println("❌ Failed to tap/select Category: " + e.getMessage());
-        }
-
-        // --- Supplier ---
-        try {
-            WebElement sup = scrollUntilVisible(supplierField, "Supplier field", 6);
-            wait.until(ExpectedConditions.elementToBeClickable(sup)).click();
-            System.out.println("✅ Supplier field tapped");
-            selectFirstDropdownOption();
-        } catch (Exception e) {
-            System.out.println("❌ Failed to tap/select Supplier: " + e.getMessage());
-        }
+    public void selectCategory() {
+        WebElement cat = scrollUntilVisible(categoryField, "Category field", 8);
+        wait.until(ExpectedConditions.elementToBeClickable(cat)).click();
+        System.out.println("✅ Category field tapped");
+        waitForDropdownToOpen();
+        selectFirstDropdownOption();
     }
 
+    public void selectSupplier() {
+        WebElement sup = scrollUntilVisible(supplierField, "Supplier field", 8);
+        wait.until(ExpectedConditions.elementToBeClickable(sup)).click();
+        System.out.println("✅ Supplier field tapped");
+        waitForDropdownToOpen();
+        selectFirstDropdownOption();
+    }
+
+    public void selectCategoryAndSupplier() {
+        try { selectCategory(); }
+        catch (Exception e) { System.out.println("❌ Category failed: " + e.getMessage()); }
+
+        try { selectSupplier(); }
+        catch (Exception e) { System.out.println("❌ Supplier failed: " + e.getMessage()); }
+    }
+
+    // ===== BUTTONS =====
+
     public void tapSaveProduct() {
-        WebElement btn = scrollUntilVisible(btnSaveProduct, "'Save Product' button", 8);
+        WebElement btn = scrollUntilVisible(btnSaveProduct, "'Save Product' button", 10);
         wait.until(ExpectedConditions.elementToBeClickable(btn)).click();
         System.out.println("✅ Save Product tapped");
     }
 
     public void tapReset() {
-        WebElement btn = scrollUntilVisible(btnReset, "'Reset' button", 6);
+        WebElement btn = scrollUntilVisible(btnReset, "'Reset' button", 8);
         wait.until(ExpectedConditions.elementToBeClickable(btn)).click();
         System.out.println("✅ Reset tapped");
     }
 
     public boolean waitForSuccessSnackBar() {
         try {
-            WebElement snack = wait.until(
-                    ExpectedConditions.visibilityOfElementLocated(snackBarText)
-            );
+            WebElement snack = wait.until(ExpectedConditions.visibilityOfElementLocated(snackBarText));
             String text = snack.getText();
             System.out.println("✅ AddItem snackbar: " + text);
-            return text.contains("Item saved");
+            return text != null && text.contains("Item saved");
         } catch (TimeoutException e) {
-            System.out.println("❌ Snackbar not found for AddItem within timeout");
+            System.out.println("❌ Snackbar not found within timeout");
             return false;
         }
+    }
+
+    // ===== FULL FLOW METHOD (EASY FOR TEST) =====
+
+    public boolean addItemFullFlow(
+            String name,
+            String barcode,
+            String qty,
+            String unitCost,
+            String salesPrice,
+            String lowStock
+    ) {
+        fillProductName(name);
+        fillBarcode(barcode);
+
+        fillPricesAndStockIfAddMode(qty, unitCost, salesPrice);
+        fillLowStock(lowStock);
+
+        selectCategoryAndSupplier();
+        tapSaveProduct();
+
+        return waitForSuccessSnackBar();
     }
 }

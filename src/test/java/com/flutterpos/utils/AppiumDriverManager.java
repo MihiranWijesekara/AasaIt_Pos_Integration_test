@@ -1,15 +1,22 @@
 package com.flutterpos.utils;
 
 import io.appium.java_client.android.AndroidDriver;
-import io.appium.java_client.remote.AndroidMobileCapabilityType;
-import io.appium.java_client.remote.MobileCapabilityType;
-import org.openqa.selenium.remote.DesiredCapabilities;
+import io.appium.java_client.android.options.UiAutomator2Options;
 
 import java.net.URL;
 import java.time.Duration;
 
 public class AppiumDriverManager {
+
     private static AndroidDriver driver;
+
+    private static final String APPIUM_SERVER_URL = "http://127.0.0.1:4723";
+    private static final String UDID = "emulator-5554";
+
+    private static final String APP_PATH = "C:\\Users\\Asus\\Desktop\\POS-APK\\app-debug.apk";
+    private static final String APP_PACKAGE = "com.example.pos";
+    private static final String APP_ACTIVITY = "com.example.pos.MainActivity";
+    private static final String APP_WAIT_ACTIVITY = "com.example.pos.MainActivity";
 
     public static AndroidDriver getDriver() {
         if (driver == null) {
@@ -20,69 +27,59 @@ public class AppiumDriverManager {
 
     private static AndroidDriver initializeDriver() {
         try {
-            System.out.println("🚀 Initializing AndroidDriver with extended timeouts for Flutter app...");
+            System.out.println("🚀 Initializing AndroidDriver (UiAutomator2) ...");
+            System.out.println("📱 UDID: " + UDID);
+            System.out.println("📦 App: " + APP_PATH);
+            System.out.println("🎯 Package: " + APP_PACKAGE);
+            System.out.println("🎯 Activity: " + APP_ACTIVITY);
 
-            DesiredCapabilities capabilities = new DesiredCapabilities();
+            UiAutomator2Options options = new UiAutomator2Options()
+                    .setPlatformName("Android")
+                    .setAutomationName("UiAutomator2")
+                    .setDeviceName("Android Emulator")
+                    .setUdid(UDID)
 
-            // ===== BASIC CAPABILITIES =====
-            capabilities.setCapability(MobileCapabilityType.PLATFORM_NAME, "Android");
-            capabilities.setCapability(MobileCapabilityType.AUTOMATION_NAME, "UiAutomator2");
-            capabilities.setCapability(MobileCapabilityType.DEVICE_NAME, "Android Emulator");
-            capabilities.setCapability(MobileCapabilityType.UDID, "emulator-5554");
+                    // App under test
+                    .setApp(APP_PATH)
+                    .setAppPackage(APP_PACKAGE)
+                    .setAppActivity(APP_ACTIVITY)
+                    .setAppWaitActivity(APP_WAIT_ACTIVITY)
 
-            // ===== APP CAPABILITIES =====
-            capabilities.setCapability(
-                    MobileCapabilityType.APP,
-                    "C:\\Users\\Asus\\Desktop\\POS\\POS\\pos\\build\\app\\outputs\\flutter-apk\\app-release.apk"
-            );
+                    // First run on new emulator must be clean
+                    .setNoReset(false)
+                    .setFullReset(false)
 
-            // Explicit package/activity (good for activateApp + stability)
-            capabilities.setCapability("appPackage", "com.example.pos");
-            capabilities.setCapability("appActivity", "com.example.pos.MainActivity");
-            capabilities.setCapability(AndroidMobileCapabilityType.APP_WAIT_ACTIVITY, "com.example.pos.MainActivity");
+                    // Useful stability flags
+                    .setAutoGrantPermissions(true)
+                    .setDisableWindowAnimation(true)
+                    .setNewCommandTimeout(Duration.ofSeconds(300));
 
-            // ===== CRITICAL: EXTENDED TIMEOUTS FOR FLUTTER APPS =====
-            capabilities.setCapability("uiautomator2ServerLaunchTimeout", 120000);  // 2 minutes
-            capabilities.setCapability("uiautomator2ServerInstallTimeout", 120000);
-            capabilities.setCapability("androidInstallTimeout", 180000);            // 3 minutes
-            capabilities.setCapability("adbExecTimeout", 180000);
-            capabilities.setCapability("appWaitDuration", 120000);
-            capabilities.setCapability(MobileCapabilityType.NEW_COMMAND_TIMEOUT, 300);
+            // --- Timeouts (Flutter + emulator can be slow) ---
+            options.setAdbExecTimeout(Duration.ofSeconds(180));
+            options.setAndroidInstallTimeout(Duration.ofSeconds(180));
+            options.setAppWaitDuration(Duration.ofSeconds(180));
 
-            // ===== FLUTTER-SPECIFIC / STARTUP BEHAVIOUR =====
-            // Let Appium actually launch the app
-            capabilities.setCapability("autoLaunch", true);
-            // Let it wait for launch normally
-            // (remove the "appWaitForLaunch" override, or set it to true)
-            // capabilities.setCapability("appWaitForLaunch", true);
+            // UiAutomator2 server timeouts
+            options.setUiautomator2ServerInstallTimeout(Duration.ofSeconds(180));
+            options.setUiautomator2ServerLaunchTimeout(Duration.ofSeconds(180));
 
-            capabilities.setCapability("disableWindowAnimation", true);
+            // IMPORTANT: Let Appium launch the app
+//            options.setAutoLaunch(true);
 
-            // ===== PERFORMANCE & STABILITY =====
-            capabilities.setCapability(AndroidMobileCapabilityType.AUTO_GRANT_PERMISSIONS, true);
-            capabilities.setCapability(MobileCapabilityType.NO_RESET, true);   // keep app data
-            capabilities.setCapability(MobileCapabilityType.FULL_RESET, false);
-            capabilities.setCapability("ignoreHiddenApiPolicyError", true);
-            capabilities.setCapability("skipDeviceInitialization", true);
-            capabilities.setCapability("skipServerInstallation", true);
-            capabilities.setCapability("skipUnlock", true);
-            capabilities.setCapability("enforceAppInstall", false);
+            // Hidden API policy errors ignored (good for some devices)
+            options.setIgnoreHiddenApiPolicyError(true);
 
-            URL appiumServerUrl = new URL("http://127.0.0.1:4723");
+            URL serverUrl = new URL(APPIUM_SERVER_URL);
 
-            System.out.println("⏰ Starting driver initialization - this may take 2-3 minutes for Flutter app...");
-            System.out.println("📱 App Package: com.example.pos");
-            System.out.println("🎯 App Activity: com.example.pos.MainActivity");
+            System.out.println("⏰ Creating driver session...");
+            AndroidDriver androidDriver = new AndroidDriver(serverUrl, options);
 
-            AndroidDriver androidDriver = new AndroidDriver(appiumServerUrl, capabilities);
+            // Implicit wait (keep small; prefer explicit waits in tests)
+            androidDriver.manage().timeouts().implicitlyWait(Duration.ofSeconds(10));
 
-            // Add implicit wait
-            androidDriver.manage().timeouts().implicitlyWait(Duration.ofSeconds(30));
-
-            System.out.println("✅ Appium driver initialized successfully!");
+            System.out.println("✅ Driver initialized successfully!");
             System.out.println("📱 Session ID: " + androidDriver.getSessionId());
-            System.out.println("🔧 Capabilities: " + androidDriver.getCapabilities());
-            System.out.println("📦 Current package after init: " + androidDriver.getCurrentPackage());
+            System.out.println("📦 Current package: " + androidDriver.getCurrentPackage());
 
             return androidDriver;
 

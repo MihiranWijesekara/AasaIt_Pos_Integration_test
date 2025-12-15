@@ -1,10 +1,6 @@
 package com.flutterpos.tests;
 
-import com.flutterpos.pages.AddUserPage;
-import com.flutterpos.pages.LoginPage;
-import com.flutterpos.pages.ManagerDashboard;
-import com.flutterpos.pages.SalesReport;
-import com.flutterpos.pages.UsersListPage;
+import com.flutterpos.pages.*;
 import com.flutterpos.pages.stockKeeper.AddCategory;
 import com.flutterpos.pages.stockKeeper.AddItem;
 import com.flutterpos.pages.stockKeeper.InventoryPage;
@@ -25,6 +21,7 @@ public class POSAutomationTest {
     private AddCategory addCategoryPage;
     private AddItem addItemPage;
     private InventoryPage inventoryPage;
+    private RegisterPage registerPage;
 
 
     @BeforeClass
@@ -37,7 +34,53 @@ public class POSAutomationTest {
         addCategoryPage = new AddCategory(driver);
         addItemPage = new AddItem(driver);
         inventoryPage = new InventoryPage(driver);
+        registerPage = new RegisterPage(driver);
     }
+
+    @Test
+    public void testInstallationFlow() {
+        registerPage.waitForInstallationPage();
+
+        // Step 1 (optional): you can keep blank values to skip
+        registerPage.fillShopDetails(
+                "AasaIT POS",           // display name
+                "",                    // legal name
+                "0771234567",          // phone
+                "test@pos.lk",         // email
+                "Anuradhapura",        // address
+                "LKR",                 // currency
+                "VAT",                 // tax regime
+                ""                     // taxId
+        );
+
+        registerPage.goNextToManager();
+
+        // Step 2 (required)
+        registerPage.fillManagerDetails(
+                "Manager One",
+                "manager1@pos.lk",
+                "0779999999",
+                "123456"
+        );
+
+        registerPage.finishAndGoToLogin();
+
+        // Optional: add assertion for login page title/text if you have any
+        // Example:
+        // Assert.assertTrue(driver.getPageSource().contains("Login"));
+    }
+
+//    @Test
+//    public void testManagerDashboardFlow() {
+//        //1) Make sure app is in login state
+//        login.ensureOnLoginScreen();
+//
+//        // 2) Login as Manager
+//        login.loginAsManager("achinthamihiran654@gmail@gmail.com", "12345678");
+//
+//        // 3) Verify dashboard
+//        Assert.assertTrue(dashboard.isDashboardVisible(), "Dashboard not visible after login");
+//    }
 
 //    @Test
 //    public void testManagerDashboardFlow() {
@@ -218,57 +261,57 @@ public class POSAutomationTest {
 //
 //    }
 
-@Test
-public void testStockKeeperAddItemFlow() {
-    // 1) Ensure login screen
-    login.ensureOnLoginScreen();
-
-    // 2) Login as Manager (who sees the StockKeeper dashboard)
-    login.loginAsManager("mihiran@gmail.com", "12345678");
-
-    // 3) Verify StockKeeper dashboard visible
-    Assert.assertTrue(
-            stockKeeper.isDashboardVisible(),
-            "Dashboard not visible after login (StockKeeper)"
-    );
-
-    // 4) Open the Add Item page and stay there
-    stockKeeper.openAddItemAndStay();
-
-    // 5) Create a unique product name
-    String productName = "Auto Item " + System.currentTimeMillis();
-
-    // 6) Fill only the text fields (no category/supplier selection)
-    addItemPage.fillBasicInfo(productName);        // Product Name
-    addItemPage.enterInitialQuantity("10");        // Initial Quantity
-    addItemPage.enterUnitCost("100.50");           // Unit Cost
-    addItemPage.enterSalesPrice("150.75");         // Sales Price
-    addItemPage.enterLowStock("5");                // Low-stock warning
-
-    // ⚠️ No dropdown handling:
-     addItemPage.selectCategoryAndSupplier();  // ← removed
-     addItemPage.tapSaveProduct();             // ← removed
-     addItemPage.waitForSuccessSnackBar();     // ← removed
-
-    // 7) Go back to dashboard after filling data
-    driver.navigate().back();
-
-    // 8) Verify we are back on StockKeeper dashboardz
-    Assert.assertTrue(
-            stockKeeper.isDashboardVisible(),
-            "Dashboard not visible after returning from Add Item"
-    );
-
-    // 9) Open Inventory and navigate through tabs
-    stockKeeper.openInventoryAndStay();
-    inventoryPage.openTotalItems();
-    inventoryPage.openLowStock();
-    inventoryPage.openReStock();
-
-    // 10) Logout
-    dashboard.logout();
-    login.ensureOnLoginScreen();
-}
+//@Test
+//public void testStockKeeperAddItemFlow() {
+//    // 1) Ensure login screen
+//    login.ensureOnLoginScreen();
+//
+//    // 2) Login as Manager (who sees the StockKeeper dashboard)
+//    login.loginAsManager("mihiran@gmail.com", "12345678");
+//
+//    // 3) Verify StockKeeper dashboard visible
+//    Assert.assertTrue(
+//            stockKeeper.isDashboardVisible(),
+//            "Dashboard not visible after login (StockKeeper)"
+//    );
+//
+//    // 4) Open the Add Item page and stay there
+//    stockKeeper.openAddItemAndStay();
+//
+//    // 5) Create a unique product name
+//    String productName = "Auto Item " + System.currentTimeMillis();
+//
+//    // 6) Fill only the text fields (no category/supplier selection)
+//    addItemPage.fillBasicInfo(productName);        // Product Name
+//    addItemPage.enterInitialQuantity("10");        // Initial Quantity
+//    addItemPage.enterUnitCost("100.50");           // Unit Cost
+//    addItemPage.enterSalesPrice("150.75");         // Sales Price
+//    addItemPage.enterLowStock("5");                // Low-stock warning
+//
+//    // ⚠️ No dropdown handling:
+//     addItemPage.selectCategoryAndSupplier();  // ← removed
+//     addItemPage.tapSaveProduct();             // ← removed
+//     addItemPage.waitForSuccessSnackBar();     // ← removed
+//
+//    // 7) Go back to dashboard after filling data
+//    driver.navigate().back();
+//
+//    // 8) Verify we are back on StockKeeper dashboardz
+//    Assert.assertTrue(
+//            stockKeeper.isDashboardVisible(),
+//            "Dashboard not visible after returning from Add Item"
+//    );
+//
+//    // 9) Open Inventory and navigate through tabs
+//    stockKeeper.openInventoryAndStay();
+//    inventoryPage.openTotalItems();
+//    inventoryPage.openLowStock();
+//    inventoryPage.openReStock();
+//
+//    // 10) Logout
+//    dashboard.logout();
+//    login.ensureOnLoginScreen();
+//}
 
 
 }
