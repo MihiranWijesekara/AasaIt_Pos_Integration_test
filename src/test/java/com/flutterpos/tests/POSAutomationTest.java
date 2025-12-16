@@ -42,18 +42,17 @@ public class POSAutomationTest {
         registerPage.waitForInstallationPage();
 
         // Step 1 (optional): you can keep blank values to skip
-        registerPage.fillShopDetails(
+        registerPage.nextStep(
                 "AasaIT POS",           // display name
-                "",                    // legal name
+                "AasaIT POS",                    // legal name
                 "0771234567",          // phone
                 "test@pos.lk",         // email
                 "Anuradhapura",        // address
                 "LKR",                 // currency
                 "VAT",                 // tax regime
-                ""                     // taxId
+                "1234"                     // taxId
         );
 
-        registerPage.goNextToManager();
 
         // Step 2 (required)
         registerPage.fillManagerDetails(
@@ -62,9 +61,6 @@ public class POSAutomationTest {
                 "0779999999",
                 "123456"
         );
-
-        registerPage.finishAndGoToLogin();
-
         // Optional: add assertion for login page title/text if you have any
         // Example:
         // Assert.assertTrue(driver.getPageSource().contains("Login"));
