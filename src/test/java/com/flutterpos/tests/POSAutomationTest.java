@@ -22,6 +22,7 @@ public class POSAutomationTest {
     private AddItem addItemPage;
     private InventoryPage inventoryPage;
     private RegisterPage registerPage;
+    private ManagerFooter managerFooter;
 
 
     @BeforeClass
@@ -35,6 +36,7 @@ public class POSAutomationTest {
         addItemPage = new AddItem(driver);
         inventoryPage = new InventoryPage(driver);
         registerPage = new RegisterPage(driver);
+        managerFooter = new ManagerFooter(driver);
     }
 
     @Test
@@ -68,6 +70,12 @@ public class POSAutomationTest {
 
         // 3) Verify dashboard
         Assert.assertTrue(dashboard.isDashboardVisible(), "Dashboard not visible after login");
+
+
+        managerFooter.navigateReports();
+        managerFooter.navigateNotification();
+        managerFooter.navigateSetting();
+        managerFooter.navigateHome();
 
         dashboard.openRegisteredUser();
         dashboard.openUserSettings();
