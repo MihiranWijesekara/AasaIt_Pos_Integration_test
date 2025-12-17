@@ -61,9 +61,22 @@ public class POSAutomationTest {
                 "0779999999",
                 "123456"
         );
-        // Optional: add assertion for login page title/text if you have any
-        // Example:
-        // Assert.assertTrue(driver.getPageSource().contains("Login"));
+        login.ensureOnLoginScreen();
+
+        // 2) Login as Manager
+        login.loginAsManager("manager1@pos.lk", "123456");
+
+        // 3) Verify dashboard
+        Assert.assertTrue(dashboard.isDashboardVisible(), "Dashboard not visible after login");
+
+        dashboard.openRegisteredUser();
+        dashboard.openUserSettings();
+        dashboard.openAuditLogs();
+        dashboard.openPromotions();
+        dashboard.openCreditors();
+        dashboard.openProfitDetail();
+
+
     }
 
 //    @Test

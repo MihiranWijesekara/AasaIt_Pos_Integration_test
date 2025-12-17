@@ -10,7 +10,9 @@ public class AppiumDriverManager {
 
     private static AndroidDriver driver;
 
-    private static final String APPIUM_SERVER_URL = "http://127.0.0.1:4723/wd/hub";
+    private static final String APPIUM_SERVER_URL = "http://127.0.0.1:4723";
+
+
     private static final String UDID = "emulator-5554";
 
     private static final String APP_PATH = "C:\\Users\\HP\\Desktop\\POS-APK\\app-debug.apk";
