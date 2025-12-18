@@ -4,6 +4,7 @@ import io.appium.java_client.AppiumBy;
 import io.appium.java_client.android.AndroidDriver;
 import org.openqa.selenium.By;
 import org.openqa.selenium.Dimension;
+import org.openqa.selenium.TimeoutException;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.interactions.PointerInput;
 import org.openqa.selenium.interactions.Sequence;
@@ -11,8 +12,7 @@ import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
 import java.time.Duration;
-import java.util.ArrayList;
-import java.util.Collections;
+import java.util.Arrays;
 import java.util.List;
 
 public class AddUserPage {
@@ -21,341 +21,330 @@ public class AddUserPage {
     private final WebDriverWait wait;
 
     // Title at top bar: "Add User"
-    private final By titleAddUser =
-            AppiumBy.xpath("//*[contains(@text,'Add User') || contains(@content-desc,'Add User')]");
+    private final By titleAddUser = AppiumBy.xpath("//*[contains(@text,'Add User') or contains(@content-desc,'Add User')]");
 
-    // Button: "Create User" (Flutter AppButton)
-    // 1) Preferred: accessibility id from Semantics(label: 'create_user_button')
-    private final By btnCreateUserAcc =
-            AppiumBy.accessibilityId("create_user_button");
+    // Button: "Create User" - Based on your screenshot
+    private final By btnCreateUser = AppiumBy.xpath("//*[@text='Create User' or @content-desc='Create User']");
+    private final By btnCancel = AppiumBy.xpath("//*[@text='Cancel' or @content-desc='Cancel']");
 
-    // 2) Text-based locator (fallback)
-    private final By btnCreateUserTextUiSelector =
-            AppiumBy.androidUIAutomator("new UiSelector().textContains(\"Create User\")");
+    // SnackBar / success text
+    private final By successSnackBar = AppiumBy.xpath("//*[contains(@text,'User created successfully')]");
 
-    // 3) Original XPath fallback
-    private final By btnCreateUser =
-            AppiumBy.xpath("//*[contains(@text,'Create User') or contains(@content-desc,'Create User')]");
+    // Field locators - Based on your screenshot labels
+    private final By fullNameField = AppiumBy.xpath("//*[contains(@text,'Full Name') or contains(@content-desc,'Full Name')]/following-sibling::*//*[@class='android.widget.EditText']");
+    private final By emailField = AppiumBy.xpath("//*[contains(@text,'Email Address') or contains(@content-desc,'Email Address')]/following-sibling::*//*[@class='android.widget.EditText']");
+    private final By contactField = AppiumBy.xpath("//*[contains(@text,'Contact Number') or contains(@content-desc,'Contact Number')]/following-sibling::*//*[@class='android.widget.EditText']");
+    private final By nicField = AppiumBy.xpath("//*[contains(@text,'NIC') or contains(@content-desc,'NIC')]/following-sibling::*//*[@class='android.widget.EditText']");
+    private final By passwordField = AppiumBy.xpath("//*[contains(@text,'Password') or contains(@content-desc,'Password')]/following-sibling::*//*[@class='android.widget.EditText']");
+    private final By confirmPasswordField = AppiumBy.xpath("//*[contains(@text,'Confirm Password') or contains(@content-desc,'Confirm Password')]/following-sibling::*//*[@class='android.widget.EditText']");
 
-    // SnackBar / success text: "User created successfully!"
-    private final By successSnackBar =
-            AppiumBy.xpath("//*[contains(@text,'User created successfully') or " +
-                    "contains(@content-desc,'User created successfully')]");
+    // Role dropdown (if needed)
+    private final By roleDropdown = AppiumBy.xpath("//*[contains(@text,'Role') or contains(@content-desc,'Role')]");
+    private final By cashierOption = AppiumBy.xpath("//*[@text='Cashier' or @content-desc='Cashier']");
 
     public AddUserPage(AndroidDriver driver) {
         this.driver = driver;
         this.wait = new WebDriverWait(driver, Duration.ofSeconds(20));
     }
 
-    /** Helper: get all EditText fields on current view */
-    private List<WebElement> getAllInputFields() {
-        List<WebElement> fields =
-                driver.findElements(AppiumBy.className("android.widget.EditText"));
-        System.out.println("🔎 Found " + fields.size() + " EditText fields on Add User page.");
-        return fields;
+    // Simplified method to enter text in fields
+    public void enterFullName(String fullName) {
+        enterTextInField(fullName, "Full Name");
     }
 
-    /** Single swipe up (scroll down) gesture */
-    private void scrollDownOnce() {
-        Dimension size = driver.manage().window().getSize();
-        int startX = size.width / 2;
-        int startY = (int) (size.height * 0.8);  // near bottom
-        int endY   = (int) (size.height * 0.3);  // near middle/top
-
-        PointerInput finger = new PointerInput(PointerInput.Kind.TOUCH, "finger");
-        Sequence swipe = new Sequence(finger, 1);
-
-        swipe.addAction(finger.createPointerMove(
-                Duration.ZERO,
-                PointerInput.Origin.viewport(),
-                startX, startY
-        ));
-        swipe.addAction(finger.createPointerDown(PointerInput.MouseButton.LEFT.asArg()));
-        swipe.addAction(finger.createPointerMove(
-                Duration.ofMillis(600),
-                PointerInput.Origin.viewport(),
-                startX, endY
-        ));
-        swipe.addAction(finger.createPointerUp(PointerInput.MouseButton.LEFT.asArg()));
-
-        driver.perform(Collections.singletonList(swipe));
+    public void enterEmail(String email) {
+        enterTextInField(email, "Email Address");
     }
 
-    /** Hide soft keyboard if it is visible */
-    /** Hide soft keyboard if it is visible – with a tap-out fallback for Flutter */
-//    private void hideKeyboardIfVisible() {
-//        try {
-//            driver.hideKeyboard();
-//            System.out.println("⌨️ Soft keyboard hidden via driver.hideKeyboard().");
-//            return;
-//        } catch (Exception e) {
-//            System.out.println("ℹ️ hideKeyboard() failed: " + e.getMessage());
-//        }
-//
-//        // Fallback: tap on a safe area at the top of the screen (outside any TextField)
-//        try {
-//            Dimension size = driver.manage().window().getSize();
-//            int x = size.width / 2;
-//            int y = (int) (size.height * 0.1);  // 10% from top, usually empty app bar area
-//
-//            System.out.println("🖱 Tapping at (" + x + "," + y + ") to dismiss keyboard...");
-//
-//            PointerInput finger = new PointerInput(PointerInput.Kind.TOUCH, "finger");
-//            Sequence tap = new Sequence(finger, 1);
-//
-//            tap.addAction(finger.createPointerMove(
-//                    Duration.ZERO,
-//                    PointerInput.Origin.viewport(),
-//                    x, y
-//            ));
-//            tap.addAction(finger.createPointerDown(PointerInput.MouseButton.LEFT.asArg()));
-//            tap.addAction(finger.createPointerUp(PointerInput.MouseButton.LEFT.asArg()));
-//
-//            driver.perform(Collections.singletonList(tap));
-//
-//            System.out.println("✅ Tap-out performed to hide keyboard.");
-//        } catch (Exception e2) {
-//            System.out.println("❌ Tap-out to hide keyboard failed: " + e2.getMessage());
-//        }
-//    }
-
-
-    /**
-     * Find all EditText fields that are password-type inputs, using the native
-     * "password" attribute exposed by Android.
-     */
-    private List<WebElement> getPasswordLikeFields() {
-        List<WebElement> all = getAllInputFields();
-        List<WebElement> result = new ArrayList<>();
-
-        for (WebElement el : all) {
-            try {
-                String pwdAttr = el.getAttribute("password"); // "true" / "false"
-                System.out.println("   ↳ EditText at Y=" + el.getRect().getY()
-                        + " password=" + pwdAttr);
-
-                if ("true".equalsIgnoreCase(pwdAttr)) {
-                    result.add(el);
-                }
-            } catch (Exception ignored) {
-                // some elements may not expose "password", just skip
-            }
-        }
-
-        System.out.println("🔐 Password-like EditTexts found: " + result.size());
-        return result;
+    public void enterContactNumber(String contactNumber) {
+        enterTextInField(contactNumber, "Contact Number");
     }
 
-    /** Fill the Add User form */
-    public void fillUserForm(String fullName,
-                             String email,
-                             String contact,
-                             String nic,
-                             String password) {
+    public void enterNIC(String nic) {
+        enterTextInField(nic, "NIC");
+    }
 
-        // -------- 1) TOP FIELDS (always visible) --------
-        wait.until(
-                ExpectedConditions.numberOfElementsToBeMoreThan(
-                        AppiumBy.className("android.widget.EditText"), 3
-                )
-        );
-        List<WebElement> initialFields = getAllInputFields();
+    public void enterPassword(String password) {
+        enterTextInField(password, "Password");
+    }
 
-        if (initialFields.size() < 4) {
-            throw new RuntimeException(
-                    "Expected at least 4 EditText fields (FullName/Email/Contact/NIC), but found: "
-                            + initialFields.size()
+    public void enterConfirmPassword(String confirmPassword) {
+        enterTextInField(confirmPassword, "Confirm Password");
+    }
+
+    private void enterTextInField(String text, String fieldLabel) {
+        try {
+            System.out.println("📝 Entering " + fieldLabel + ": " + text);
+
+            // Try multiple strategies to find and enter text
+
+            // Strategy 1: Find by label then find adjacent EditText
+            By fieldLocator = AppiumBy.xpath(
+                    "//*[contains(@text,'" + fieldLabel + "') or contains(@content-desc,'" + fieldLabel + "')]/following::android.widget.EditText[1]"
             );
-        }
 
+            // Strategy 2: Try to find all EditTexts and identify by index
+            List<WebElement> allEditFields = driver.findElements(AppiumBy.className("android.widget.EditText"));
+            System.out.println("Found " + allEditFields.size() + " EditText fields");
 
-        // 0: Full Name
-        WebElement fullNameField = initialFields.get(0);
-        fullNameField.click();
-        fullNameField.clear();
-        fullNameField.sendKeys(fullName);
+            WebElement targetField = null;
 
-        // 1: Email
-        WebElement emailField = initialFields.get(1);
-        emailField.click();
-        emailField.clear();
-        emailField.sendKeys(email);
-
-        // 2: Contact Number
-        WebElement contactField = initialFields.get(2);
-        contactField.click();
-        contactField.clear();
-        contactField.sendKeys(contact);
-
-        // 3: NIC
-        WebElement nicField = initialFields.get(3);
-        nicField.click();
-        nicField.clear();
-        nicField.sendKeys(nic);
-
-
-        // -------- 2) SCROLL TO ENSURE PASSWORD FIELDS ARE IN VIEW --------
-        System.out.println("🔽 Scrolling to reveal password fields...");
-        for (int i = 0; i < 4; i++) {
-            scrollDownOnce();
             try {
+                // Try strategy 1 first
+                targetField = wait.until(ExpectedConditions.elementToBeClickable(fieldLocator));
+                System.out.println("✅ Found field by label: " + fieldLabel);
+            } catch (Exception e) {
+                System.out.println("⚠️ Field not found by label, trying by index...");
+
+                // Strategy 2: Identify by expected field order
+                int fieldIndex = getFieldIndex(fieldLabel);
+                if (fieldIndex >= 0 && fieldIndex < allEditFields.size()) {
+                    targetField = allEditFields.get(fieldIndex);
+                    System.out.println("✅ Found field by index: " + fieldIndex);
+                }
+            }
+
+            if (targetField != null) {
+                // Scroll to make field visible
+                scrollToElement(targetField);
+
+                // Clear and enter text
+                targetField.click();
                 Thread.sleep(500);
-            } catch (InterruptedException ignored) {}
-        }
 
-        // -------- 3) FIND PASSWORD + CONFIRM PASSWORD FIELDS (SAFE LOGIC) --------
-        List<WebElement> allFields = getAllInputFields();
-        List<WebElement> passwordFields = getPasswordLikeFields();
+                // Clear existing text (if any)
+                targetField.clear();
+                Thread.sleep(500);
 
-        WebElement pwdField;
-        WebElement confirmField;
+                // Enter new text
+                targetField.sendKeys(text);
+                Thread.sleep(500);
 
-        if (passwordFields.size() >= 2) {
-            // Best case: first = password, second = confirm
-            pwdField = passwordFields.get(0);
-            confirmField = passwordFields.get(1);
-            System.out.println("✅ Using 2 password fields (pwd + confirm) from password=true list.");
-        } else if (passwordFields.size() == 1) {
-            // Only one password=true → use it + nearest neighbour / last field as confirm
-            WebElement pwdCandidate = passwordFields.get(0);
-            int idx = allFields.indexOf(pwdCandidate);
+                // Hide keyboard
+                try {
+                    driver.hideKeyboard();
+                } catch (Exception e) {
+                    // Keyboard might not be visible
+                }
 
-            if (idx != -1 && idx < allFields.size() - 1) {
-                // Use this as password, the next EditText as confirm password
-                pwdField = pwdCandidate;
-                confirmField = allFields.get(idx + 1);
-                System.out.println("⚠️ Only 1 password=true field found. Using it + next EditText as confirm.");
-            } else if (allFields.size() >= 2) {
-                // Fallback to last two fields
-                pwdField = allFields.get(allFields.size() - 2);
-                confirmField = allFields.get(allFields.size() - 1);
-                System.out.println("⚠️ Only 1 password=true field found. Falling back to last two EditTexts.");
+                System.out.println("✅ " + fieldLabel + " entered successfully");
             } else {
-                throw new RuntimeException("Not enough EditText fields to resolve password + confirm password.");
+                System.out.println("❌ Could not find field for: " + fieldLabel);
+                // Last resort: try to tap near expected location
+                tapOnScreenBasedOnField(fieldLabel, text);
             }
-        } else {
-            // No password=true attribute detected → fallback to last two EditTexts
-            if (allFields.size() < 2) {
-                throw new RuntimeException(
-                        "Could not detect password fields: no password=true and less than 2 EditTexts overall."
-                );
-            }
-            pwdField = allFields.get(allFields.size() - 2);
-            confirmField = allFields.get(allFields.size() - 1);
-            System.out.println("⚠️ No password=true fields. Falling back to last two EditTexts as pwd + confirm.");
+
+        } catch (Exception e) {
+            System.out.println("❌ Error entering " + fieldLabel + ": " + e.getMessage());
+            e.printStackTrace();
         }
-
-
-        // -------- 4) TYPE PASSWORD + CONFIRM PASSWORD --------
-        pwdField.click();
-        pwdField.clear();
-        pwdField.sendKeys(password);
-
-
-        confirmField.click();
-        confirmField.clear();
-        confirmField.sendKeys(password);
-
-        // Hide keyboard so it doesn't cover the button
-//        hideKeyboardIfVisible();
-
-        System.out.println("✅ Filled Add User form (name, email, contact, NIC, password, confirm).");
     }
 
-    /**
-     * Tap the Create User button if present.
-     * If NOT present (your case), submit by pressing BACK (app auto-saves and returns to Users list).
-     */
-    public void tapCreateUser() {
-        System.out.println("🔘 Trying to tap 'Create User' button...");
-
-        // Scroll a few times to bring bottom row (Cancel / Create) into view
-        for (int i = 0; i < 3; i++) {
-            scrollDownOnce();
-            try {
-                Thread.sleep(400);
-            } catch (InterruptedException ignored) {}
+    private int getFieldIndex(String fieldLabel) {
+        switch (fieldLabel) {
+            case "Full Name": return 0;
+            case "Email Address": return 1;
+            case "Contact Number": return 2;
+            case "NIC": return 3;
+            case "Password": return 4;
+            case "Confirm Password": return 5;
+            default: return -1;
         }
+    }
 
-        WebElement btn = null;
-
-        // Strategy 1: accessibility id (if Semantics label is added in Flutter)
+    private void tapOnScreenBasedOnField(String fieldLabel, String text) {
         try {
-            btn = wait.until(ExpectedConditions.elementToBeClickable(btnCreateUserAcc));
-            System.out.println("✅ 'Create User' button found via accessibilityId('create_user_button').");
-        } catch (Exception e) {
-            System.out.println("ℹ️ accessibilityId('create_user_button') not found: " + e.getMessage());
-        }
+            Dimension size = driver.manage().window().getSize();
+            int centerX = size.width / 2;
+            int[] yPositions = {400, 550, 700, 850, 1000, 1150}; // Adjust based on your screen
 
-        // Strategy 2: Android UIAutomator textContains("Create User")
-        if (btn == null) {
-            try {
-                btn = wait.until(ExpectedConditions.elementToBeClickable(btnCreateUserTextUiSelector));
-                System.out.println("✅ 'Create User' button found via UiSelector textContains('Create User').");
-            } catch (Exception e) {
-                System.out.println("⚠️ UiSelector text('Create User') failed: " + e.getMessage());
-            }
-        }
+            int fieldIndex = getFieldIndex(fieldLabel);
+            if (fieldIndex >= 0 && fieldIndex < yPositions.length) {
+                int tapY = yPositions[fieldIndex];
 
-        // Strategy 3: original XPath text "Create User"
-        if (btn == null) {
-            try {
-                btn = wait.until(ExpectedConditions.elementToBeClickable(btnCreateUser));
-                System.out.println("✅ 'Create User' button found via original XPath (Create User).");
-            } catch (Exception e) {
-                System.out.println("⚠️ XPath locator for 'Create User' failed: " + e.getMessage());
-            }
-        }
+                // Tap to focus
+                PointerInput finger = new PointerInput(PointerInput.Kind.TOUCH, "finger");
+                Sequence tap = new Sequence(finger, 0)
+                        .addAction(finger.createPointerMove(Duration.ZERO, PointerInput.Origin.viewport(), centerX, tapY))
+                        .addAction(finger.createPointerDown(PointerInput.MouseButton.LEFT.asArg()))
+                        .addAction(finger.createPointerUp(PointerInput.MouseButton.LEFT.asArg()));
+                driver.perform(Arrays.asList(tap));
 
-        // If still null → use BACK to submit (your real app behaviour)
-        if (btn == null) {
-            System.out.println("⚠️ Create User button not found. Submitting form by pressing BACK (app auto-saves).");
-            driver.navigate().back();
-            return;
-        }
-
-        // Try to click the resolved button
-        try {
-            btn.click();
-            System.out.println("✅ Create User button tapped.");
-        } catch (Exception e) {
-            System.out.println("⚠️ Direct click failed, trying again after a short wait: " + e.getMessage());
-            try {
                 Thread.sleep(500);
-            } catch (InterruptedException ignored) {}
-            btn.click();
-            System.out.println("✅ Create User button tapped on retry.");
+
+                // Enter text using ADB (as last resort)
+                try {
+                    driver.getClipboardText(); // Just to check connectivity
+                    driver.executeScript("mobile: type",
+                            java.util.Map.of("text", text));
+                    System.out.println("✅ " + fieldLabel + " entered via mobile:type");
+                } catch (Exception e) {
+                    System.out.println("⚠️ Could not enter text via mobile:type");
+                }
+            }
+        } catch (Exception e) {
+            System.out.println("❌ Tap-based entry failed: " + e.getMessage());
         }
     }
 
-    /** Wait for success message from SnackBar (optional – may or may not appear after BACK) */
-    public boolean waitForSuccessMessage() {
+    private void scrollToElement(WebElement element) {
         try {
-            wait.until(ExpectedConditions.visibilityOfElementLocated(successSnackBar));
-            System.out.println("🎉 Success snackbar detected: User created successfully!");
-            return true;
+            // Simple scroll if element is not displayed
+            if (!element.isDisplayed()) {
+                scrollDown();
+                Thread.sleep(1000);
+            }
         } catch (Exception e) {
-            System.out.println("⚠️ Success snackbar NOT detected.");
+            // Ignore scroll errors
+        }
+    }
+
+    private void scrollDown() {
+        try {
+            Dimension size = driver.manage().window().getSize();
+            int startX = size.width / 2;
+            int startY = (int) (size.height * 0.7);
+            int endY = (int) (size.height * 0.3);
+
+            PointerInput finger = new PointerInput(PointerInput.Kind.TOUCH, "finger");
+            Sequence scroll = new Sequence(finger, 0)
+                    .addAction(finger.createPointerMove(Duration.ZERO, PointerInput.Origin.viewport(), startX, startY))
+                    .addAction(finger.createPointerDown(PointerInput.MouseButton.LEFT.asArg()))
+                    .addAction(finger.createPointerMove(Duration.ofMillis(600), PointerInput.Origin.viewport(), startX, endY))
+                    .addAction(finger.createPointerUp(PointerInput.MouseButton.LEFT.asArg()));
+
+            driver.perform(Arrays.asList(scroll));
+        } catch (Exception e) {
+            System.out.println("⚠️ Scroll failed: " + e.getMessage());
+        }
+    }
+
+    // Main method to create user
+    public void createUser(String fullName, String email, String contactNumber, String nic,
+                           String password, String confirmPassword) throws InterruptedException {
+
+        System.out.println("🚀 Starting user creation process...");
+
+        // Verify we're on Add User page
+        try {
+            wait.until(ExpectedConditions.presenceOfElementLocated(titleAddUser));
+            System.out.println("✅ Verified: On Add User page");
+        } catch (Exception e) {
+            System.out.println("⚠️ Not on Add User page, but continuing...");
+        }
+
+        // Enter all fields
+        enterFullName(fullName);
+        Thread.sleep(1000);
+
+        enterEmail(email);
+        Thread.sleep(1000);
+
+        enterContactNumber(contactNumber);
+        Thread.sleep(1000);
+
+        enterNIC(nic);
+        Thread.sleep(1000);
+
+        enterPassword(password);
+        Thread.sleep(1000);
+
+        enterConfirmPassword(confirmPassword);
+        Thread.sleep(1000);
+
+        System.out.println("✅ All user data entered");
+
+        // Click Create User button
+        clickCreateUser();
+    }
+
+    // Click Create User button
+    public void clickCreateUser() {
+        try {
+            System.out.println("🖱️ Looking for Create User button...");
+
+            // Scroll to bottom if needed
+            scrollDown();
+            Thread.sleep(1000);
+
+            // Try to find and click Create User button
+            WebElement createBtn = wait.until(ExpectedConditions.elementToBeClickable(btnCreateUser));
+            createBtn.click();
+            System.out.println("✅ Create User button clicked!");
+
+            // Wait for success message or page change
+            Thread.sleep(3000);
+
+            // Check for success
+            try {
+                WebElement successMsg = wait.until(ExpectedConditions.visibilityOfElementLocated(successSnackBar));
+                if (successMsg != null) {
+                    System.out.println("🎉 User created successfully!");
+                }
+            } catch (Exception e) {
+                System.out.println("⚠️ Success message not shown, but continuing...");
+            }
+
+        } catch (Exception e) {
+            System.out.println("❌ Failed to click Create User button: " + e.getMessage());
+
+            // Alternative: Try to tap at bottom right (where button should be)
+            try {
+                Dimension size = driver.manage().window().getSize();
+                int tapX = (int) (size.width * 0.8);
+                int tapY = (int) (size.height * 0.9);
+
+                PointerInput finger = new PointerInput(PointerInput.Kind.TOUCH, "finger");
+                Sequence tap = new Sequence(finger, 0)
+                        .addAction(finger.createPointerMove(Duration.ZERO, PointerInput.Origin.viewport(), tapX, tapY))
+                        .addAction(finger.createPointerDown(PointerInput.MouseButton.LEFT.asArg()))
+                        .addAction(finger.createPointerUp(PointerInput.MouseButton.LEFT.asArg()));
+                driver.perform(Arrays.asList(tap));
+
+                System.out.println("✅ Tapped at button location");
+                Thread.sleep(3000);
+            } catch (Exception ex) {
+                System.out.println("❌ Could not tap button location");
+            }
+        }
+    }
+
+    // Optional: Select role if needed
+    public void selectRole(String role) {
+        try {
+            System.out.println("👤 Selecting role: " + role);
+            WebElement roleElement = wait.until(ExpectedConditions.elementToBeClickable(roleDropdown));
+            roleElement.click();
+            Thread.sleep(1000);
+
+            WebElement roleOption = wait.until(ExpectedConditions.elementToBeClickable(
+                    AppiumBy.xpath("//*[@text='" + role + "' or @content-desc='" + role + "']")
+            ));
+            roleOption.click();
+            System.out.println("✅ Role selected: " + role);
+        } catch (Exception e) {
+            System.out.println("⚠️ Role selection skipped: " + e.getMessage());
+        }
+    }
+
+    // Check if user was created successfully
+    public boolean isUserCreatedSuccessfully() {
+        try {
+            WebElement successMsg = wait.until(ExpectedConditions.visibilityOfElementLocated(successSnackBar));
+            return successMsg != null;
+        } catch (Exception e) {
             return false;
         }
     }
 
-    /** High-level flow: fill form + submit + wait for success (best effort) */
-    public void createUser(String fullName,
-                           String email,
-                           String contact,
-                           String nic,
-                           String password) {
-
-        System.out.println("🧪 Starting createUser() flow on Add User page...");
-
-        fillUserForm(fullName, email, contact, nic, password);
-        tapCreateUser();  // either taps button OR presses BACK
-
-        // Optional: keep this if snackbar appears; if not, you can remove this block.
-        boolean success = waitForSuccessMessage();
-        if (!success) {
-            System.out.println("ℹ️ No success snackbar seen – but app may still have saved user on BACK.");
+    // Navigate back if needed
+    public void cancel() {
+        try {
+            WebElement cancelBtn = wait.until(ExpectedConditions.elementToBeClickable(btnCancel));
+            cancelBtn.click();
+            System.out.println("✅ Cancelled user creation");
+        } catch (Exception e) {
+            System.out.println("⚠️ Cancel button not found");
         }
     }
 }

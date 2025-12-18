@@ -249,6 +249,23 @@ public class ManagerDashboard {
             return false;
         }
     }
+    // Open Registered Users and STAY there (NO back navigation)
+    public void openRegisteredUserAndStay() {
+        System.out.println("[ACTION] Opening Registered Users and staying on page");
+
+        WebElement tile = scrollToFindElement(tileRegisteredUser);
+        tile.click();
+
+        // Wait until Users page is visible
+        try {
+            Thread.sleep(1500);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        }
+
+        System.out.println("[SUCCESS] Now staying on Registered Users page");
+    }
+
 
     // Get visible tiles for debugging
     public void printVisibleTiles() {

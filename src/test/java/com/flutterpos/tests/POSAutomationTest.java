@@ -71,6 +71,34 @@ public class POSAutomationTest {
         // 3) Verify dashboard
         Assert.assertTrue(dashboard.isDashboardVisible(), "Dashboard not visible after login");
 
+        // 5) Now navigate AGAIN to Add User, but STAY there
+        dashboard.openRegisteredUserAndStay();
+
+        UsersListPage usersListPage = new UsersListPage(driver);
+        Assert.assertTrue(usersListPage.isVisible(), "Users list page is not visible after Add User tile");
+
+        // 6) Click the 'Add User' button/FAB on that page
+        usersListPage.tapAddUserButton();
+
+//         7) Use AddUserPage to create a new user
+        addUserPage = new AddUserPage(driver);
+
+        // Create a unique email each run to avoid "email already exists"
+        String uniqueEmail = "autotest+" + System.currentTimeMillis() + "@example.com";
+
+        try {
+            addUserPage.createUser(
+                    "Auto Test Cashier",
+                    uniqueEmail,
+                    "0771234569",
+                    "123456779V",
+                    "Password1",
+                    "Password1"
+            );
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
+
 
         managerFooter.navigateReports();
         managerFooter.navigateNotification();
@@ -83,6 +111,8 @@ public class POSAutomationTest {
         dashboard.openPromotions();
         dashboard.openCreditors();
         dashboard.openProfitDetail();
+
+
 
 
     }
