@@ -90,6 +90,13 @@ public class LoginPage {
         );
     }
 
+    private WebElement getRegisterButton() {
+        String xpath = "//*[contains(@content-desc,'Register') or contains(@text,'Register')]";
+        return wait.until(
+                ExpectedConditions.elementToBeClickable(AppiumBy.xpath(xpath))
+        );
+    }
+
     // ---------- HIGH-LEVEL ACTIONS ----------
 
     public void enterEmail(String email) {
@@ -116,6 +123,11 @@ public class LoginPage {
         WebElement btn = getLoginButton();
         btn.click();
         System.out.println("✅ Login button tapped.");
+    }
+    public void tapRegister() {
+        WebElement btn = getRegisterButton();
+        btn.click();
+        System.out.println("✅ Register button tapped.");
     }
 
     public void loginAsManager(String email, String pwd) {

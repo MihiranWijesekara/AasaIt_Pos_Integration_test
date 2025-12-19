@@ -39,8 +39,90 @@ public class POSAutomationTest {
         managerFooter = new ManagerFooter(driver);
     }
 
+//    @Test
+//    public void testInstallationFlow() {
+//        registerPage.waitForInstallationPage();
+//
+//        // Step 1 (optional): you can keep blank values to skip
+//        registerPage.nextStep(
+//                "AasaIT POS",           // display name
+//                "AasaIT POS",                    // legal name
+//                "0771234567",          // phone
+//                "test@pos.lk",         // email
+//                "Anuradhapura",        // address
+//                "LKR",                 // currency
+//                "VAT",                 // tax regime
+//                "1234"                     // taxId
+//        );
+//
+//
+//        // Step 2 (required)
+//        registerPage.fillManagerDetails(
+//                "Manager One",
+//                "manager1@pos.lk",
+//                "0779999999",
+//                "123456"
+//        );
+//        login.ensureOnLoginScreen();
+//
+//        // 2) Login as Manager
+//        login.loginAsManager("manager1@pos.lk", "123456");
+//
+//        // 3) Verify dashboard
+//        Assert.assertTrue(dashboard.isDashboardVisible(), "Dashboard not visible after login");
+//
+//        // 5) Now navigate AGAIN to Add User, but STAY there
+//        dashboard.openRegisteredUserAndStay();
+//
+//        UsersListPage usersListPage = new UsersListPage(driver);
+//        Assert.assertTrue(usersListPage.isVisible(), "Users list page is not visible after Add User tile");
+//
+//        // 6) Click the 'Add User' button/FAB on that page
+//        usersListPage.tapAddUserButton();
+//
+////         7) Use AddUserPage to create a new user
+//        addUserPage = new AddUserPage(driver);
+//
+//        // Create a unique email each run to avoid "email already exists"
+//        String uniqueEmail = "autotest+" + System.currentTimeMillis() + "@example.com";
+//
+//        try {
+//            addUserPage.createUser(
+//                    "Auto Test Cashier",
+//                    uniqueEmail,
+//                    "0771234569",
+//                    "123456779V",
+//                    "Password1",
+//                    "Password1"
+//            );
+//        } catch (InterruptedException e) {
+//            throw new RuntimeException(e);
+//        }
+//
+//
+//        managerFooter.navigateReports();
+//        managerFooter.navigateNotification();
+//        managerFooter.navigateSetting();
+//        managerFooter.navigateHome();
+//
+//        dashboard.openRegisteredUser();
+//        dashboard.openUserSettings();
+//        dashboard.openAuditLogs();
+//        dashboard.openPromotions();
+//        dashboard.openCreditors();
+//        dashboard.openProfitDetail();
+//
+//
+//
+//
+//    }
+
     @Test
-    public void testInstallationFlow() {
+    public void testManagerDashboardFlow() {
+        //1) Make sure app is in login state
+        login.ensureOnLoginScreen();
+        login.tapRegister();
+
         registerPage.waitForInstallationPage();
 
         // Step 1 (optional): you can keep blank values to skip
@@ -55,50 +137,21 @@ public class POSAutomationTest {
                 "1234"                     // taxId
         );
 
-
         // Step 2 (required)
         registerPage.fillManagerDetails(
                 "Manager One",
                 "manager1@pos.lk",
                 "0779999999",
+                "123456",
                 "123456"
         );
         login.ensureOnLoginScreen();
 
         // 2) Login as Manager
-        login.loginAsManager("manager1@pos.lk", "123456");
+        login.loginAsManager("manager@pos.local", "Manager@12345");
 
         // 3) Verify dashboard
         Assert.assertTrue(dashboard.isDashboardVisible(), "Dashboard not visible after login");
-
-        // 5) Now navigate AGAIN to Add User, but STAY there
-        dashboard.openRegisteredUserAndStay();
-
-        UsersListPage usersListPage = new UsersListPage(driver);
-        Assert.assertTrue(usersListPage.isVisible(), "Users list page is not visible after Add User tile");
-
-        // 6) Click the 'Add User' button/FAB on that page
-        usersListPage.tapAddUserButton();
-
-//         7) Use AddUserPage to create a new user
-        addUserPage = new AddUserPage(driver);
-
-        // Create a unique email each run to avoid "email already exists"
-        String uniqueEmail = "autotest+" + System.currentTimeMillis() + "@example.com";
-
-        try {
-            addUserPage.createUser(
-                    "Auto Test Cashier",
-                    uniqueEmail,
-                    "0771234569",
-                    "123456779V",
-                    "Password1",
-                    "Password1"
-            );
-        } catch (InterruptedException e) {
-            throw new RuntimeException(e);
-        }
-
 
         managerFooter.navigateReports();
         managerFooter.navigateNotification();
@@ -111,23 +164,7 @@ public class POSAutomationTest {
         dashboard.openPromotions();
         dashboard.openCreditors();
         dashboard.openProfitDetail();
-
-
-
-
     }
-
-//    @Test
-//    public void testManagerDashboardFlow() {
-//        //1) Make sure app is in login state
-//        login.ensureOnLoginScreen();
-//
-//        // 2) Login as Manager
-//        login.loginAsManager("achinthamihiran654@gmail@gmail.com", "12345678");
-//
-//        // 3) Verify dashboard
-//        Assert.assertTrue(dashboard.isDashboardVisible(), "Dashboard not visible after login");
-//    }
 
 //    @Test
 //    public void testManagerDashboardFlow() {
@@ -139,7 +176,7 @@ public class POSAutomationTest {
 //
 //        // 3) Verify dashboard
 //        Assert.assertTrue(dashboard.isDashboardVisible(), "Dashboard not visible after login");
-//
+
 //
 ////        // 4) Click tiles (navigate but come back to dashboard)
 //        dashboard.openAddUser();
@@ -257,7 +294,7 @@ public class POSAutomationTest {
 //        dashboard.logout();
 //
 //        login.ensureOnLoginScreen();
-//    }
+    }
 
 //    @Test
 //    public void testStockKeeperDashboardFlow() {
@@ -361,4 +398,4 @@ public class POSAutomationTest {
 //}
 
 
-}
+

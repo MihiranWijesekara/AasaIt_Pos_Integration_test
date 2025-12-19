@@ -1,16 +1,17 @@
 package com.flutterpos.pages;
 
 import io.appium.java_client.AppiumBy;
-import io.appium.java_client.TouchAction;
 import io.appium.java_client.android.AndroidDriver;
-import io.appium.java_client.touch.WaitOptions;
-import io.appium.java_client.touch.offset.PointOption;
 import org.openqa.selenium.*;
+import org.openqa.selenium.interactions.Pause;
+import org.openqa.selenium.interactions.PointerInput;
+import org.openqa.selenium.interactions.Sequence;
 import org.openqa.selenium.remote.RemoteWebElement;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
 import java.time.Duration;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
@@ -148,7 +149,7 @@ public class RegisterPage {
     }
 
     // =========================================================
-    //  Second page (Manager)
+    //  Second page (Manager) - FIXED METHODS
     // =========================================================
 
     private WebElement getFullNameField() {
@@ -159,9 +160,9 @@ public class RegisterPage {
             return wait.until(ExpectedConditions.visibilityOfElementLocated(AppiumBy.xpath(primaryXpath)));
         } catch (TimeoutException e) {
             System.out.println("⚠️ Full name failed. Trying EditText[0]...");
-            WebElement el = getEditTextByIndexWithSmallScroll(0);
-            if (el != null) return el;
-            dumpSource("Full Name");
+            List<WebElement> inputs = wait.until(d -> d.findElements(editTexts));
+            if (inputs.size() > 0) return inputs.get(0);
+            dumpSource("Full name");
             throw e;
         }
     }
@@ -172,8 +173,8 @@ public class RegisterPage {
             return wait.until(ExpectedConditions.visibilityOfElementLocated(AppiumBy.xpath(primaryXpath)));
         } catch (TimeoutException e) {
             System.out.println("⚠️ Email (manager) failed. Trying EditText[1]...");
-            WebElement el = getEditTextByIndexWithSmallScroll(1);
-            if (el != null) return el;
+            List<WebElement> inputs = wait.until(d -> d.findElements(editTexts));
+            if (inputs.size() > 1) return inputs.get(1);
             dumpSource("Email (Manager)");
             throw e;
         }
@@ -187,8 +188,8 @@ public class RegisterPage {
             return wait.until(ExpectedConditions.visibilityOfElementLocated(AppiumBy.xpath(primaryXpath)));
         } catch (TimeoutException e) {
             System.out.println("⚠️ Contact Number failed. Trying EditText[2]...");
-            WebElement el = getEditTextByIndexWithSmallScroll(2);
-            if (el != null) return el;
+            List<WebElement> inputs = wait.until(d -> d.findElements(editTexts));
+            if (inputs.size() > 2) return inputs.get(2);
             dumpSource("Contact Number");
             throw e;
         }
@@ -200,9 +201,43 @@ public class RegisterPage {
             return wait.until(ExpectedConditions.visibilityOfElementLocated(AppiumBy.xpath(primaryXpath)));
         } catch (TimeoutException e) {
             System.out.println("⚠️ Password failed. Trying EditText[3]...");
-            WebElement el = getEditTextByIndexWithSmallScroll(3);
-            if (el != null) return el;
+            List<WebElement> inputs = wait.until(d -> d.findElements(editTexts));
+            if (inputs.size() > 3) return inputs.get(3);
             dumpSource("Password");
+            throw e;
+        }
+    }
+
+    private WebElement getConfirmPasswordField() {
+        String primaryXpath = "//*[contains(@content-desc,'Confirm Password') or contains(@text,'Confirm Password') or contains(@text,'Confirm password')]";
+        try {
+            return wait.until(ExpectedConditions.visibilityOfElementLocated(AppiumBy.xpath(primaryXpath)));
+        } catch (TimeoutException e) {
+            System.out.println("⚠️ Confirm Password failed. Trying EditText[4]...");
+
+            // First, try to scroll down to see if field is not visible
+            scrollDownSmall();
+            sleep(500);
+
+            List<WebElement> inputs = wait.until(d -> d.findElements(editTexts));
+            System.out.println("Found " + inputs.size() + " EditText fields");
+
+            if (inputs.size() > 4) {
+                return inputs.get(4);
+            } else if (inputs.size() == 4) {
+                // Maybe Confirm Password is the 4th field (0-indexed 3)
+                return inputs.get(3);
+            }
+
+            // Try one more scroll
+            scrollDownSmall();
+            sleep(500);
+
+            inputs = driver.findElements(editTexts);
+            if (inputs.size() > 4) return inputs.get(4);
+            if (inputs.size() == 4) return inputs.get(3);
+
+            dumpSource("Confirm Password");
             throw e;
         }
     }
@@ -308,6 +343,14 @@ public class RegisterPage {
         System.out.println("✅ Password entered.");
     }
 
+    public void enterConfirmPasswordField(String confirmPassword) {
+        WebElement field = getConfirmPasswordField();
+        field.click();
+        try { field.clear(); } catch (Exception ignored) {}
+        field.sendKeys(confirmPassword);
+        System.out.println("✅ Confirm Password entered.");
+    }
+
     // =========================================================
     //  Step waiting & step detection
     // =========================================================
@@ -344,17 +387,18 @@ public class RegisterPage {
         ensureManagerStep();
     }
 
-    public void fillManagerDetails(String fullName, String EmailSecond, String ContactNumber, String password) {
+    public void fillManagerDetails(String fullName, String EmailSecond, String ContactNumber, String password, String confirmPassword) {
         ensureManagerStep();
 
         enterFullNameField(fullName);
         enterEmailSecField(EmailSecond);
         enterContactNumberField(ContactNumber);
         enterPasswordField(password);
+        enterConfirmPasswordField(confirmPassword);
 
         // Scroll down to make sure button is visible
-//        scrollDownSmall();
-//        sleep(500);
+        scrollDownSmall();
+        sleep(500);
 
         // Use the improved finish method
         finishAndGoToLogin();
@@ -369,7 +413,13 @@ public class RegisterPage {
 
         System.out.println("🔍 Looking for Finish & Go To Login button...");
 
-        // Try multiple strategies
+        // Try scanning first (most reliable for Flutter apps)
+        if (clickFinishByScanning()) {
+            System.out.println("✅ Finish button clicked via scanning!");
+            return;
+        }
+
+        // Then try other methods
         if (clickFinishByText()) {
             System.out.println("✅ Finish button clicked successfully!");
             return;
@@ -390,21 +440,128 @@ public class RegisterPage {
             return;
         }
 
-        // Last resort: dump page source for debugging
-        dumpSource("Finish button");
-        throw new NoSuchElementException("Could not find or click Finish & Go To Login button");
+        // Last resort: try a different approach - find any button at bottom
+        clickAnyButtonAtBottom();
+    }
+
+    // =========================================================
+    //  NEW METHOD: Click any button at bottom
+    // =========================================================
+
+    private void clickAnyButtonAtBottom() {
+        try {
+            Dimension size = driver.manage().window().getSize();
+            int centerX = size.width / 2;
+            int bottomY = size.height - 100; // 100 pixels from bottom
+
+            System.out.println("🔄 Trying to click at bottom center: x=" + centerX + ", y=" + bottomY);
+
+            // Use W3C actions
+            PointerInput finger = new PointerInput(PointerInput.Kind.TOUCH, "finger");
+            Sequence sequence = new Sequence(finger, 0);
+
+            sequence.addAction(finger.createPointerMove(Duration.ofMillis(0),
+                    PointerInput.Origin.viewport(), centerX, bottomY));
+            sequence.addAction(finger.createPointerDown(PointerInput.MouseButton.LEFT.asArg()));
+            sequence.addAction(new Pause(finger, Duration.ofMillis(100)));
+            sequence.addAction(finger.createPointerUp(PointerInput.MouseButton.LEFT.asArg()));
+
+            driver.perform(Arrays.asList(sequence));
+
+            sleep(3000);
+
+            if (!isOnManagerStep() || isLoginScreenVisible()) {
+                System.out.println("✅ Bottom tap worked!");
+            } else {
+                throw new NoSuchElementException("Bottom tap didn't work");
+            }
+
+        } catch (Exception e) {
+            System.out.println("❌ Bottom tap failed: " + e.getMessage());
+            dumpSource("Finish button");
+            throw new NoSuchElementException("Could not find or click Finish & Go To Login button");
+        }
+    }
+
+    // =========================================================
+    //  NEW METHOD: Click Finish by Scanning
+    // =========================================================
+
+    private boolean clickFinishByScanning() {
+        try {
+            System.out.println("🔍 Scanning for Finish button in page source...");
+
+            // Get all elements that could be buttons
+            List<WebElement> allElements = driver.findElements(AppiumBy.xpath(
+                    "//*[@clickable='true' or @enabled='true' or @class='android.widget.Button' or " +
+                            "contains(@class, 'Button')]"
+            ));
+
+            System.out.println("Found " + allElements.size() + " clickable elements");
+
+            for (WebElement element : allElements) {
+                try {
+                    String text = element.getAttribute("text");
+                    String contentDesc = element.getAttribute("content-desc");
+
+                    if ((text != null && (text.contains("Finish") || text.contains("Complete") ||
+                            text.contains("Login") || text.contains("Submit"))) ||
+                            (contentDesc != null && (contentDesc.contains("finish") ||
+                                    contentDesc.contains("complete") || contentDesc.contains("login")))) {
+
+                        System.out.println("🎯 Found potential finish button: text='" + text +
+                                "', content-desc='" + contentDesc + "'");
+
+                        if (element.isDisplayed() && element.isEnabled()) {
+                            element.click();
+                            System.out.println("✅ Clicked potential finish button");
+                            sleep(2000);
+
+                            if (!isOnManagerStep() || isLoginScreenVisible()) {
+                                System.out.println("✅ Successfully finished registration");
+                                return true;
+                            }
+                        }
+                    }
+                } catch (Exception e) {
+                    // Continue scanning
+                }
+            }
+
+            // Also try to find by text only (case insensitive)
+            String[] finishKeywords = {"finish", "complete", "submit", "done", "go to login", "proceed"};
+            for (String keyword : finishKeywords) {
+                try {
+                    By locator = AppiumBy.xpath("//*[contains(translate(@text, 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', 'abcdefghijklmnopqrstuvwxyz'), '" +
+                            keyword.toLowerCase() + "')]");
+                    List<WebElement> elements = driver.findElements(locator);
+
+                    for (WebElement element : elements) {
+                        if (element.isDisplayed() && element.isEnabled()) {
+                            System.out.println("✅ Found finish button by keyword: " + keyword);
+                            element.click();
+                            sleep(2000);
+
+                            if (!isOnManagerStep() || isLoginScreenVisible()) {
+                                return true;
+                            }
+                        }
+                    }
+                } catch (Exception e) {
+                    // Continue
+                }
+            }
+
+        } catch (Exception e) {
+            System.out.println("❌ clickFinishByScanning failed: " + e.getMessage());
+        }
+        return false;
     }
 
     private boolean clickFinishByText() {
         try {
             String[] finishTexts = {
-                    "Finish & Go To Login",
-                    "Finish and Go To Login",
-                    "Finish",
-                    "FINISH",
-                    "Complete",
-                    "Complete Setup",
-                    "Go To Login"
+                    "Finish", "FINISH", "Finish & Go To Login", "Finish and Go To Login"
             };
 
             for (String text : finishTexts) {
@@ -515,11 +672,14 @@ public class RegisterPage {
             Dimension size = driver.manage().window().getSize();
             System.out.println("📱 Screen size: " + size.width + "x" + size.height);
 
+            // Try using W3C actions
+            PointerInput finger = new PointerInput(PointerInput.Kind.TOUCH, "finger");
+
             // Try different positions (prioritize bottom area)
             int[][] positions = {
-                    {(int) (size.width * 0.50), (int) (size.height * 0.92)},  // Very bottom center
-                    {(int) (size.width * 0.50), (int) (size.height * 0.88)},  // Bottom center
-                    {(int) (size.width * 0.50), (int) (size.height * 0.85)},  // Slightly higher
+                    {size.width / 2, (int) (size.height * 0.92)},  // Very bottom center
+                    {size.width / 2, (int) (size.height * 0.88)},  // Bottom center
+                    {size.width / 2, (int) (size.height * 0.85)},  // Slightly higher
                     {(int) (size.width * 0.85), (int) (size.height * 0.92)},  // Bottom right
                     {(int) (size.width * 0.15), (int) (size.height * 0.92)},  // Bottom left
             };
@@ -529,9 +689,15 @@ public class RegisterPage {
                 try {
                     System.out.println("📍 Attempt " + (i+1) + ": Tapping coordinates x=" + pos[0] + " y=" + pos[1]);
 
-                    new TouchAction<>(driver)
-                            .tap(PointOption.point(pos[0], pos[1]))
-                            .perform();
+                    // Using W3C actions
+                    Sequence tapSequence = new Sequence(finger, 0);
+                    tapSequence.addAction(finger.createPointerMove(Duration.ofMillis(0),
+                            PointerInput.Origin.viewport(), pos[0], pos[1]));
+                    tapSequence.addAction(finger.createPointerDown(PointerInput.MouseButton.LEFT.asArg()));
+                    tapSequence.addAction(new Pause(finger, Duration.ofMillis(100)));
+                    tapSequence.addAction(finger.createPointerUp(PointerInput.MouseButton.LEFT.asArg()));
+
+                    driver.perform(Arrays.asList(tapSequence));
 
                     sleep(2000); // Wait to see if screen changes
 
@@ -549,6 +715,16 @@ public class RegisterPage {
 
                 } catch (Exception e) {
                     System.out.println("❌ Coordinate tap attempt " + (i+1) + " failed: " + e.getMessage());
+
+                    // Try alternative: JavaScript click on any element at that position
+                    try {
+                        WebElement element = driver.findElement(AppiumBy.xpath("//*[@bounds[contains(.,'" + pos[0] + "," + pos[1] + "')]]"));
+                        element.click();
+                        System.out.println("✅ Found element at coordinates and clicked");
+                        return true;
+                    } catch (Exception e2) {
+                        // Ignore and continue
+                    }
                 }
             }
         } catch (Exception e) {
@@ -570,7 +746,8 @@ public class RegisterPage {
         try {
             By loginLocators = AppiumBy.xpath(
                     "//*[contains(@text, 'Login') or contains(@text, 'Sign In') or " +
-                            "contains(@text, 'Email') or contains(@text, 'Password')]"
+                            "contains(@text, 'Email') or contains(@text, 'Password') or " +
+                            "contains(@text, 'Sign in')]"
             );
             return driver.findElements(loginLocators).size() > 0;
         } catch (Exception e) {
@@ -585,7 +762,7 @@ public class RegisterPage {
     public void clickFinishButtonSimple() {
         try {
             // Try the most common ways
-            String finishText = "Finish & Go To Login";
+            String finishText = "Finish";
 
             // Method 1: Direct XPath
             try {
@@ -751,9 +928,17 @@ public class RegisterPage {
 
             for (int[] pos : positions) {
                 try {
-                    new TouchAction<>(driver)
-                            .tap(PointOption.point(pos[0], pos[1]))
-                            .perform();
+                    // Use W3C actions
+                    PointerInput finger = new PointerInput(PointerInput.Kind.TOUCH, "finger");
+                    Sequence sequence = new Sequence(finger, 0);
+
+                    sequence.addAction(finger.createPointerMove(Duration.ofMillis(0),
+                            PointerInput.Origin.viewport(), pos[0], pos[1]));
+                    sequence.addAction(finger.createPointerDown(PointerInput.MouseButton.LEFT.asArg()));
+                    sequence.addAction(new Pause(finger, Duration.ofMillis(100)));
+                    sequence.addAction(finger.createPointerUp(PointerInput.MouseButton.LEFT.asArg()));
+
+                    driver.perform(Arrays.asList(sequence));
 
                     System.out.println("⚠️ Next tapped by coordinates x=" + pos[0] + " y=" + pos[1]);
 
@@ -889,12 +1074,19 @@ public class RegisterPage {
         int startY = (int) (size.height * 0.70);
         int endY = (int) (size.height * 0.35);
 
-        new TouchAction<>(driver)
-                .press(PointOption.point(startX, startY))
-                .waitAction(WaitOptions.waitOptions(Duration.ofMillis(300)))
-                .moveTo(PointOption.point(startX, endY))
-                .release()
-                .perform();
+        // Use W3C actions for scrolling
+        PointerInput finger = new PointerInput(PointerInput.Kind.TOUCH, "finger");
+        Sequence scroll = new Sequence(finger, 0);
+
+        scroll.addAction(finger.createPointerMove(Duration.ofMillis(0),
+                PointerInput.Origin.viewport(), startX, startY));
+        scroll.addAction(finger.createPointerDown(PointerInput.MouseButton.LEFT.asArg()));
+        scroll.addAction(new Pause(finger, Duration.ofMillis(200)));
+        scroll.addAction(finger.createPointerMove(Duration.ofMillis(300),
+                PointerInput.Origin.viewport(), startX, endY));
+        scroll.addAction(finger.createPointerUp(PointerInput.MouseButton.LEFT.asArg()));
+
+        driver.perform(Arrays.asList(scroll));
     }
 
     private String escapeXpath(String s) {
