@@ -344,6 +344,8 @@ public class RegisterPage {
     }
 
     public void enterConfirmPasswordField(String confirmPassword) {
+        try { Thread.sleep(10_000); } catch (InterruptedException ignored) {}
+
         WebElement field = getConfirmPasswordField();
         field.click();
         try { field.clear(); } catch (Exception ignored) {}
