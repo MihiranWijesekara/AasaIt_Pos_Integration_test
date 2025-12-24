@@ -23,6 +23,7 @@ public class POSAutomationTest {
     private InventoryPage inventoryPage;
     private RegisterPage registerPage;
     private ManagerFooter managerFooter;
+    private ManagerReportPage managerReportPage;
 
 
     @BeforeClass
@@ -37,38 +38,39 @@ public class POSAutomationTest {
         inventoryPage = new InventoryPage(driver);
         registerPage = new RegisterPage(driver);
         managerFooter = new ManagerFooter(driver);
+        managerReportPage = new ManagerReportPage(driver);
     }
 
-    @Test
-    public void testRegisterPageFlow() {
-        //1) Make sure app is in login state
-        login.ensureOnLoginScreen();
-        login.tapRegister();
-
-        registerPage.waitForInstallationPage();
-
-        // Step 1 (optional): you can keep blank values to skip
-        registerPage.nextStep(
-                "AasaIT POS",           // display name
-                "AasaIT POS",                    // legal name
-                "0771234567",          // phone
-                "test@pos.lk",         // email
-                "Anuradhapura",        // address
-                "LKR",                 // currency
-                "VAT",                 // tax regime
-                "1234"                     // taxId
-        );
-
-        // Step 2 (required)
-        registerPage.fillManagerDetails(
-                "Manager One",
-                "manager1@pos.lk",
-                "0779999999",
-                "123456",
-                "123456"
-        );
-    }
-
+    //Test 01
+//    @Test
+//    public void testRegisterPageFlow() {
+//        //1) Make sure app is in login state
+//        login.ensureOnLoginScreen();
+//        login.tapRegister();
+//
+//        registerPage.waitForInstallationPage();
+//
+//        // Step 1 (optional): you can keep blank values to skip
+//        registerPage.nextStep(
+//                "AasaIT POS",           // display name
+//                "AasaIT POS",                    // legal name
+//                "0771234567",          // phone
+//                "test@pos.lk",         // email
+//                "Anuradhapura",        // address
+//                "LKR",                 // currency
+//                "VAT",                 // tax regime
+//                "1234"                     // taxId
+//        );
+//
+//        // Step 2 (required)
+//        registerPage.fillManagerDetails(
+//                "Manager One",
+//                "manager1@pos.lk",
+//                "0779999999",
+//                "123456",
+//                "123456"
+//        );
+//    }
 
     @Test
     public void testManagerDashboardFlow() {
@@ -89,10 +91,21 @@ public class POSAutomationTest {
         dashboard.openRegisteredUser();
         dashboard.openUserSettings();
         dashboard.openAuditLogs();
-        dashboard.openPromotions();
-        dashboard.openCreditors();
-        dashboard.openProfitDetail();
+//        dashboard.openPromotions();
+//        dashboard.openCreditors();
+//        dashboard.openProfitDetail();
+
+        managerReportPage.clickReportFooterAndStay();
+        managerReportPage.navigateDailySummary();
+        managerReportPage.navigateReportHub();
+        managerReportPage.navigateTopProducts();
+        managerReportPage.navigateProfitSplit();
+
+
+
+
     }
+
 
 //    @Test
 //    public void testManagerDashboardFlow() {
