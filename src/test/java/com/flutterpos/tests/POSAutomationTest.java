@@ -24,6 +24,7 @@ public class POSAutomationTest {
     private RegisterPage registerPage;
     private ManagerFooter managerFooter;
     private ManagerReportPage managerReportPage;
+    private SalesReport salesReport;
 
 
     @BeforeClass
@@ -39,6 +40,7 @@ public class POSAutomationTest {
         registerPage = new RegisterPage(driver);
         managerFooter = new ManagerFooter(driver);
         managerReportPage = new ManagerReportPage(driver);
+        salesReport = new SalesReport(driver);
     }
 
     //Test 01
@@ -72,6 +74,7 @@ public class POSAutomationTest {
 //        );
 //    }
 
+    //Test 02
     @Test
     public void testManagerDashboardFlow() {
 
@@ -101,8 +104,27 @@ public class POSAutomationTest {
         managerReportPage.navigateTopProducts();
         managerReportPage.navigateProfitSplit();
 
+        managerReportPage.clickReportHubAndStay();
 
-
+        salesReport.openItemDetailsReport();
+        salesReport.openCustomerDetailsReport();
+        salesReport.openUserDetailsReport();
+        salesReport.openInvoiceListReport();
+        salesReport.openRefundBillsReport();
+        salesReport.openCardPayment();
+        salesReport.openCashPayment();
+        salesReport.openPaymentReport();
+        salesReport.openDailySalesReport();
+        salesReport.openProfitMarginsReport();
+        salesReport.openCreditSalesReport();
+        salesReport.openCashEntryReport();
+        salesReport.openDiscountGranted();
+        salesReport.openUnpaidPurchaseReport();
+        salesReport.openSupplierListReport();
+        salesReport.openStockReport();
+        salesReport.openTransactionHistoryReport();
+        salesReport.openReorderHistoryReport();
+        salesReport.openLowStockWarningReport();
 
     }
 

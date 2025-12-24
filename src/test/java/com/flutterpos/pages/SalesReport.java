@@ -123,10 +123,11 @@ public class SalesReport {
     }
 
     // Actions with Logs + scroll
-
     public void openItemDetailsReport() {
-        clickTile(itemDetailsReport, "Items Details Report");
+        System.out.println("Items Details Report");
+        driver.findElement(itemDetailsReport).click();
         driver.navigate().back();
+
     }
 
     public void openCustomerDetailsReport() {

@@ -73,7 +73,7 @@ public class ManagerReportPage {
 
     }
 
-    public void clickReporHubAndStay() {
+    public void clickReportHubAndStay() {
         System.out.println("[ACTION] Opening Report Hub Dashboard and staying on page");
 
         // Wait for the Reports tile to be clickable
