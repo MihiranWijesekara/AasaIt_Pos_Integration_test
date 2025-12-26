@@ -94,9 +94,8 @@ public class POSAutomationTest {
         dashboard.openRegisteredUser();
         dashboard.openUserSettings();
         dashboard.openAuditLogs();
-//        dashboard.openPromotions();
-//        dashboard.openCreditors();
-//        dashboard.openProfitDetail();
+        dashboard.openCreditors();
+        dashboard.openProfitDetail();
 
         managerReportPage.clickReportFooterAndStay();
         managerReportPage.navigateDailySummary();
@@ -104,26 +103,43 @@ public class POSAutomationTest {
         managerReportPage.navigateTopProducts();
         managerReportPage.navigateProfitSplit();
 
-        managerReportPage.clickReportHubAndStay();
+        managerReportPage.navigateReportHubAndStay();
 
         salesReport.openItemDetailsReport();
+        managerReportPage.navigateReportHubAndStay();
         salesReport.openCustomerDetailsReport();
+        managerReportPage.navigateReportHubAndStay();
         salesReport.openUserDetailsReport();
+        managerReportPage.navigateReportHubAndStay();
         salesReport.openInvoiceListReport();
+        managerReportPage.navigateReportHubAndStay();
         salesReport.openRefundBillsReport();
+        managerReportPage.navigateReportHubAndStay();
         salesReport.openCardPayment();
+        managerReportPage.navigateReportHubAndStay();
         salesReport.openCashPayment();
+        managerReportPage.navigateReportHubAndStay();
         salesReport.openPaymentReport();
+        managerReportPage.navigateReportHubAndStay();
         salesReport.openDailySalesReport();
-        salesReport.openProfitMarginsReport();
+        managerReportPage.navigateReportHubAndStay();
+//        salesReport.openProfitMarginsReport();
         salesReport.openCreditSalesReport();
+        managerReportPage.navigateReportHubAndStay();
         salesReport.openCashEntryReport();
+        managerReportPage.navigateReportHubAndStay();
         salesReport.openDiscountGranted();
+        managerReportPage.navigateReportHubAndStay();
         salesReport.openUnpaidPurchaseReport();
+        managerReportPage.navigateReportHubAndStay();
         salesReport.openSupplierListReport();
+        managerReportPage.navigateReportHubAndStay();
         salesReport.openStockReport();
+        managerReportPage.navigateReportHubAndStay();
         salesReport.openTransactionHistoryReport();
+        managerReportPage.navigateReportHubAndStay();
         salesReport.openReorderHistoryReport();
+        managerReportPage.navigateReportHubAndStay();
         salesReport.openLowStockWarningReport();
 
     }

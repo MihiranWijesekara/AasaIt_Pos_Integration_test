@@ -35,8 +35,6 @@ public class SalesReport {
             AppiumBy.xpath("//*[contains(@text,'Check Payment') or contains(@content-desc,'Check Payment')]");
     private final By dailySalesReport =
             AppiumBy.xpath("//*[contains(@text,'Daily Sales') or contains(@content-desc,'Daily Sales')]");
-    private final By profitMarginReport =
-            AppiumBy.xpath("//*[contains(@text,'Profit & Margin') or contains(@content-desc,'Profit & Margin')]");
     private final By CreditsalesReport =
             AppiumBy.xpath("//*[contains(@text,'Credit Sales') or contains(@content-desc,'Credit Sales')]");
     private final By startingCashEntryReport =
@@ -73,6 +71,7 @@ public class SalesReport {
             List<WebElement> elements = driver.findElements(locator);
             if (!elements.isEmpty()) {
                 elements.get(0).click();
+                System.out.println("[SUCCESS] " + tileName + " clicked.");
                 return;
             }
 
@@ -84,10 +83,12 @@ public class SalesReport {
         List<WebElement> elements = driver.findElements(locator);
         if (!elements.isEmpty()) {
             elements.get(0).click();
+            System.out.println("[SUCCESS] " + tileName + " clicked after scrolling.");
         } else {
             throw new RuntimeException("Could not find tile: " + tileName + " after scrolling.");
         }
     }
+
 
     /**
      * Simple swipe down using W3C actions.
@@ -167,11 +168,6 @@ public class SalesReport {
 
     public void openDailySalesReport() {
         clickTile(dailySalesReport, "Daily Sales Report");
-        driver.navigate().back();
-    }
-
-    public void openProfitMarginsReport() {
-        clickTile(profitMarginReport, "Profit & Margin Report");
         driver.navigate().back();
     }
 
