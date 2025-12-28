@@ -3,11 +3,16 @@ package com.flutterpos.pages.stockKeeper;
 import io.appium.java_client.AppiumBy;
 import io.appium.java_client.AppiumDriver;
 import org.openqa.selenium.By;
+import org.openqa.selenium.Dimension;
 import org.openqa.selenium.WebElement;
+import org.openqa.selenium.interactions.PointerInput;
+import org.openqa.selenium.interactions.Sequence;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
 import java.time.Duration;
+import java.util.Collections;
+import java.util.List;
 
 public class stockKeeperDashboard {
 
@@ -25,14 +30,17 @@ public class stockKeeperDashboard {
             AppiumBy.xpath("//*[contains(@text,'Add Item') or contains(@content-desc,'Add Item')]");
     private final By tileSuppliers =
             AppiumBy.xpath("//*[contains(@text,'Suppliers') or contains(@content-desc,'Suppliers')]");
-    private final By tileInsights =
-            AppiumBy.xpath("//*[contains(@text,'Insights') or contains(@content-desc,'Insights')]");
     private final By tileInventory =
             AppiumBy.xpath("//*[contains(@text,'Inventory') or contains(@content-desc,'Inventory')]");
-    private final By tileProfitMargins =
-            AppiumBy.xpath("//*[contains(@text,'Supplier Request') or contains(@content-desc,'Supplier Request')]");
-    private final By btnLogout =
-            AppiumBy.accessibilityId("Logout");
+    private final By tileTotalStockItems =
+            AppiumBy.xpath("//*[contains(@text,'Total Stock Items') or contains(@content-desc,'Total Stock Items')]");
+    private final By tileRestockRequests =
+            AppiumBy.xpath("//*[contains(@text,'Restock Requests') or contains(@content-desc,'Restock Requests')]");
+    private final By tileInsights =
+            AppiumBy.xpath("//*[contains(@text,'Insights') or contains(@content-desc,'Insights')]");
+    private final By tileSupplierReviews =
+            AppiumBy.xpath("//*[contains(@text,'Supplier Reviews') or contains(@content-desc,'Supplier Reviews')]");
+
 
     public stockKeeperDashboard(AppiumDriver driver) {
         this.driver = driver;
@@ -51,6 +59,73 @@ public class stockKeeperDashboard {
         }
     }
 
+    /**
+     * Generic helper to scroll down and click a tile.
+     * - Tries to find the element.
+     * - If not found, performs a swipe down and retries (maxScrolls times).
+     */
+    private void clickTile(By locator, String tileName) {
+        System.out.println("[ACTION] Clicking " + tileName);
+        int maxScrolls = 5;
+
+        for (int i = 0; i < maxScrolls; i++) {
+            List<WebElement> elements = driver.findElements(locator);
+            if (!elements.isEmpty()) {
+                elements.get(0).click();
+                System.out.println("[SUCCESS] " + tileName + " clicked.");
+                return;
+            }
+
+            System.out.println("[INFO] '" + tileName + "' not visible yet. Scrolling down... (attempt " + (i + 1) + ")");
+            scrollDown();
+        }
+
+        // Final attempt after scrolling
+        List<WebElement> elements = driver.findElements(locator);
+        if (!elements.isEmpty()) {
+            elements.get(0).click();
+            System.out.println("[SUCCESS] " + tileName + " clicked after scrolling.");
+        } else {
+            throw new RuntimeException("Could not find tile: " + tileName + " after scrolling.");
+        }
+    }
+
+
+    /**
+     * Simple swipe down using W3C actions.
+     */
+    private void scrollDown() {
+        Dimension size = driver.manage().window().getSize();
+        int width = size.width;
+        int height = size.height;
+
+        int startX = width / 2;
+        int startY = (int) (height * 0.8); // near bottom
+        int endY = (int) (height * 0.3);   // near top
+
+        PointerInput finger = new PointerInput(PointerInput.Kind.TOUCH, "finger");
+        Sequence swipe = new Sequence(finger, 1);
+
+        swipe.addAction(finger.createPointerMove(
+                Duration.ZERO,
+                PointerInput.Origin.viewport(),
+                startX,
+                startY
+        ));
+        swipe.addAction(finger.createPointerDown(PointerInput.MouseButton.LEFT.asArg()));
+        swipe.addAction(finger.createPointerMove(
+                Duration.ofMillis(600),
+                PointerInput.Origin.viewport(),
+                startX,
+                endY
+        ));
+        swipe.addAction(finger.createPointerUp(PointerInput.MouseButton.LEFT.asArg()));
+
+        driver.perform(Collections.singletonList(swipe));
+    }
+
+
+
     // Check Dashboard visible
     public boolean isDashboardVisible() {
         boolean visible = !driver.findElements(titleStock).isEmpty();
@@ -59,61 +134,51 @@ public class stockKeeperDashboard {
     }
 
     public void openAddCategory() {
-        System.out.println("[ACTION] Clicking Add Category");
-        driver.findElement(tileAddCategory).click();
+        clickTile(tileAddCategory, "Add Category");
         tapBackButton();
     }
 
     public void openAddItem() {
-        System.out.println("[ACTION] Clicking Add Item");
-        driver.findElement(tileAddItem).click();
+        clickTile(tileAddItem, "Add Item");
         tapBackButton();
     }
 
     public void openSuppliers() {
-        System.out.println("[ACTION] Clicking Suppliers");
-        driver.findElement(tileSuppliers).click();
+        clickTile(tileSuppliers, "Suppliers");
         tapBackButton();
     }
-
-    public void openInsights() {
-        System.out.println("[ACTION] Clicking Insights tile");
-        driver.findElement(tileInsights).click();
-        tapBackButton();
-    }
-
     public void openInventory() {
-        System.out.println("[ACTION] Clicking Sales Report tile");
-        driver.findElement(tileInventory).click();
+        clickTile(tileInventory, "Sales Report");
         tapBackButton();
     }
 
-    public void openProfitMargins() {
-        System.out.println("[ACTION] Clicking Profit Margins tile");
-        driver.findElement(tileProfitMargins).click();
+    public void openTotalStockItem() {
+        clickTile(tileTotalStockItems, "Total Stock Item ");
         tapBackButton();
     }
 
-    public void openAddCategoryAndStay() {
-        System.out.println("[ACTION] Clicking Add Category tile (stay on page)");
-        driver.findElement(tileAddCategory).click();
+    public void openRestockRequests() {
+        clickTile(tileTotalStockItems, "Restock Requests ");
+        tapBackButton();
     }
-    public void openAddItemAndStay() {
-        System.out.println("[ACTION] Clicking Add Item tile (stay on page)");
-        driver.findElement(tileAddItem).click();
+    public void openInsights() {
+        clickTile(tileInsights, "Insights");
+        tapBackButton();
     }
-    public void openInventoryAndStay() {
-        System.out.println("[ACTION] Clicking Inventory tile (stay on page)");
-        driver.findElement(tileInventory).click();
+    public void openSupplierReviews() {
+        clickTile(tileSupplierReviews, "Supplier Reviews");
+        tapBackButton();
     }
 
-    public void logout() {
-        System.out.println("[ACTION] Clicking Logout icon on Manager Dashboard...");
-        WebElement logoutIcon = wait.until(
-                ExpectedConditions.elementToBeClickable(btnLogout)
-        );
-        logoutIcon.click();
-        System.out.println("✅ Logout icon tapped.");
+    public void openAddCategoryNotBack() {
+        clickTile(tileAddCategory, "Add Category");
     }
+    public void openSuppliersNotBack() {
+        clickTile(tileSuppliers, "Suppliers");
+    }
+    public void openAddItemNotBack() {
+        clickTile(tileAddItem, "Add Item");
+    }
+
 
 }

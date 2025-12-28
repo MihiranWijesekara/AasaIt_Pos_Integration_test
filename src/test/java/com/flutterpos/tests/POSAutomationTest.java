@@ -1,10 +1,7 @@
 package com.flutterpos.tests;
 
 import com.flutterpos.pages.*;
-import com.flutterpos.pages.stockKeeper.AddCategory;
-import com.flutterpos.pages.stockKeeper.AddItem;
-import com.flutterpos.pages.stockKeeper.InventoryPage;
-import com.flutterpos.pages.stockKeeper.stockKeeperDashboard;
+import com.flutterpos.pages.stockKeeper.*;
 import com.flutterpos.utils.AppiumDriverManager;
 import io.appium.java_client.android.AndroidDriver;
 import org.testng.Assert;
@@ -18,6 +15,10 @@ public class POSAutomationTest {
     private ManagerDashboard dashboard;
     private AddUserPage addUserPage;
     private stockKeeperDashboard stockKeeper;
+    private StockFooter stockFooter;
+    private AddSupplier addSupplier;
+    private AddNewCategory addNewCategory;
+    private AddProduct addProduct;
     private AddCategory addCategoryPage;
     private AddItem addItemPage;
     private InventoryPage inventoryPage;
@@ -41,6 +42,11 @@ public class POSAutomationTest {
         managerFooter = new ManagerFooter(driver);
         managerReportPage = new ManagerReportPage(driver);
         salesReport = new SalesReport(driver);
+        stockFooter = new StockFooter(driver);
+        addSupplier = new AddSupplier(driver);
+        addNewCategory = new AddNewCategory(driver);
+        addProduct = new AddProduct(driver);
+
     }
 
     //Test 01
@@ -75,72 +81,136 @@ public class POSAutomationTest {
 //    }
 
     //Test 02
-    @Test
-    public void testManagerDashboardFlow() {
+//    @Test
+//    public void testManagerDashboardFlow() {  //cashier@pos.local,stock@pos.local
+//
+//        login.ensureOnLoginScreen();
+//
+//        // 2) Login as Manager
+//        login.loginAsManager("manager@pos.local", "Manager@12345");
+//
+//        // 3) Verify dashboard
+//        Assert.assertTrue(dashboard.isDashboardVisible(), "Dashboard not visible after login");
+//
+//        managerFooter.navigateReports();
+//        managerFooter.navigateNotification();
+//        managerFooter.navigateSetting();
+//        managerFooter.navigateHome();
+//
+//        dashboard.openRegisteredUser();
+//        dashboard.openUserSettings();
+//        dashboard.openAuditLogs();
+//        dashboard.openCreditors();
+//        dashboard.openProfitDetail();
+//
+//        managerReportPage.clickReportFooterAndStay();
+//        managerReportPage.navigateDailySummary();
+//        managerReportPage.navigateReportHub();
+//        managerReportPage.navigateTopProducts();
+//        managerReportPage.navigateProfitSplit();
+//
+//        managerReportPage.navigateReportHubAndStay();
+//
+//        salesReport.openItemDetailsReport();
+//        managerReportPage.navigateReportHubAndStay();
+//        salesReport.openCustomerDetailsReport();
+//        managerReportPage.navigateReportHubAndStay();
+//        salesReport.openUserDetailsReport();
+//        managerReportPage.navigateReportHubAndStay();
+//        salesReport.openInvoiceListReport();
+//        managerReportPage.navigateReportHubAndStay();
+//        salesReport.openRefundBillsReport();
+//        managerReportPage.navigateReportHubAndStay();
+//        salesReport.openCardPayment();
+//        managerReportPage.navigateReportHubAndStay();
+//        salesReport.openCashPayment();
+//        managerReportPage.navigateReportHubAndStay();
+//        salesReport.openPaymentReport();
+//        managerReportPage.navigateReportHubAndStay();
+//        salesReport.openDailySalesReport();
+//        managerReportPage.navigateReportHubAndStay();
+////        salesReport.openProfitMarginsReport();
+//        salesReport.openCreditSalesReport();
+//        managerReportPage.navigateReportHubAndStay();
+//        salesReport.openCashEntryReport();
+//        managerReportPage.navigateReportHubAndStay();
+//        salesReport.openDiscountGranted();
+//        managerReportPage.navigateReportHubAndStay();
+//        salesReport.openUnpaidPurchaseReport();
+//        managerReportPage.navigateReportHubAndStay();
+//        salesReport.openSupplierListReport();
+//        managerReportPage.navigateReportHubAndStay();
+//        salesReport.openStockReport();
+//        managerReportPage.navigateReportHubAndStay();
+//        salesReport.openTransactionHistoryReport();
+//        managerReportPage.navigateReportHubAndStay();
+//        salesReport.openReorderHistoryReport();
+//        managerReportPage.navigateReportHubAndStay();
+//        salesReport.openLowStockWarningReport();
+//
+//    }
 
+    //Test 03
+    @Test
+    public void testStockKeeperDashboardFlow() {
+        // 1) Make sure app is in login state
         login.ensureOnLoginScreen();
 
         // 2) Login as Manager
-        login.loginAsManager("manager@pos.local", "Manager@12345");
+        login.loginAsManager("stock@pos.local", "12345678");
 
         // 3) Verify dashboard
-        Assert.assertTrue(dashboard.isDashboardVisible(), "Dashboard not visible after login");
+        Assert.assertTrue(stockKeeper.isDashboardVisible(), "Dashboard not visible after login");
 
-        managerFooter.navigateReports();
-        managerFooter.navigateNotification();
-        managerFooter.navigateSetting();
-        managerFooter.navigateHome();
 
-        dashboard.openRegisteredUser();
-        dashboard.openUserSettings();
-        dashboard.openAuditLogs();
-        dashboard.openCreditors();
-        dashboard.openProfitDetail();
 
-        managerReportPage.clickReportFooterAndStay();
-        managerReportPage.navigateDailySummary();
-        managerReportPage.navigateReportHub();
-        managerReportPage.navigateTopProducts();
-        managerReportPage.navigateProfitSplit();
+        // Add Category
+        stockKeeper.openAddCategoryNotBack();
+        addNewCategory.navigateAddCategory();
+        addNewCategory.enterCategoryName("Beverages");
+        addNewCategory.saveNewCategory();
 
-        managerReportPage.navigateReportHubAndStay();
+        // Add Supplier
+        stockKeeper.openSuppliersNotBack();
+        addSupplier.navigateAddSupplier();
+        addSupplier.enterSupplierName("ABC Traders");
+        addSupplier.enterContactNumber("0771234567");
+        addSupplier.enterEmail("abc@gmail.com");
+        addSupplier.enterBrandCompany("ABC Pvt Ltd");
+        addSupplier.clickSaveSupplier();
 
-        salesReport.openItemDetailsReport();
-        managerReportPage.navigateReportHubAndStay();
-        salesReport.openCustomerDetailsReport();
-        managerReportPage.navigateReportHubAndStay();
-        salesReport.openUserDetailsReport();
-        managerReportPage.navigateReportHubAndStay();
-        salesReport.openInvoiceListReport();
-        managerReportPage.navigateReportHubAndStay();
-        salesReport.openRefundBillsReport();
-        managerReportPage.navigateReportHubAndStay();
-        salesReport.openCardPayment();
-        managerReportPage.navigateReportHubAndStay();
-        salesReport.openCashPayment();
-        managerReportPage.navigateReportHubAndStay();
-        salesReport.openPaymentReport();
-        managerReportPage.navigateReportHubAndStay();
-        salesReport.openDailySalesReport();
-        managerReportPage.navigateReportHubAndStay();
-//        salesReport.openProfitMarginsReport();
-        salesReport.openCreditSalesReport();
-        managerReportPage.navigateReportHubAndStay();
-        salesReport.openCashEntryReport();
-        managerReportPage.navigateReportHubAndStay();
-        salesReport.openDiscountGranted();
-        managerReportPage.navigateReportHubAndStay();
-        salesReport.openUnpaidPurchaseReport();
-        managerReportPage.navigateReportHubAndStay();
-        salesReport.openSupplierListReport();
-        managerReportPage.navigateReportHubAndStay();
-        salesReport.openStockReport();
-        managerReportPage.navigateReportHubAndStay();
-        salesReport.openTransactionHistoryReport();
-        managerReportPage.navigateReportHubAndStay();
-        salesReport.openReorderHistoryReport();
-        managerReportPage.navigateReportHubAndStay();
-        salesReport.openLowStockWarningReport();
+        // Add Product
+        stockKeeper.openAddItemNotBack();
+        addProduct.enterProductName("Orange Juice");
+        addProduct.enterInitialQuantity("50");
+        addProduct.enterUnitCost("120.00");
+        addProduct.enterSalesPrice("150.00");
+        addProduct.enterLowStock("10");
+        addProduct.tapCategory();
+        addProduct.tapBeverages();
+
+        stockKeeper.openAddCategory();
+        stockKeeper.openAddItem();
+        stockKeeper.openSuppliers();
+        stockKeeper.openInventory();
+        stockKeeper.openTotalStockItem();
+        stockKeeper.openRestockRequests();
+        stockKeeper.openInsights();
+        stockKeeper.openSupplierReviews();
+
+        stockFooter.navigateReports();
+        stockFooter.navigateNotification();
+        stockFooter.navigateSetting();
+        stockFooter.navigateHome();
+
+        stockFooter.navigateReports();
+        stockFooter.navigateDailyStockReport();
+        stockFooter.navigateSetting();
+        stockFooter.navigateTileAppearance();
+        stockFooter.navigateHome();
+
+
+
 
     }
 
@@ -275,54 +345,7 @@ public class POSAutomationTest {
 //        login.ensureOnLoginScreen();
     }
 
-//    @Test
-//    public void testStockKeeperDashboardFlow() {
-//        // 1) Make sure app is in login state
-//        login.ensureOnLoginScreen();
-//
-//        // 2) Login as Manager
-//        login.loginAsManager("mihiran@gmail.com", "12345678");
-//
-//        // 3) Verify dashboard
-//        Assert.assertTrue(stockKeeper.isDashboardVisible(), "Dashboard not visible after login");
-//
-//        stockKeeper.openAddCategory();
-//        stockKeeper.openAddItem();
-//        stockKeeper.openSuppliers();
-//        stockKeeper.openInsights();
-//        stockKeeper.openInventory();
-//        stockKeeper.openProfitMargins();
-//
-//        stockKeeper.openAddCategoryAndStay();
-//
-//        addCategoryPage.openAddCategoryForm();
-//        // 6) Open the Add Category form (FAB at bottom right)
-//        addCategoryPage.openAddCategoryForm();
-//        // 7) Create unique category name (no image)
-//        String categoryName = "Auto Category " + System.currentTimeMillis();
-//        addCategoryPage.enterCategoryName(categoryName);
-//        // 8) Tap "Save Category" button
-//        addCategoryPage.tapSaveCategory();
-//
-//        // 9) Assert success snackbar visible
-//        boolean snackOk = addCategoryPage.waitForSuccessSnackBar();
-//        Assert.assertTrue(
-//                snackOk,
-//                "Expected success snackbar after saving category"
-//        );
-//        // 10) Assert newly added category appears in list
-//        boolean exists = addCategoryPage.isCategoryInList(categoryName);
-//        Assert.assertTrue(
-//                exists,
-//                "New category not found in list: " + categoryName
-//        );
-//
-//
-//        dashboard.logout();
-//
-//        login.ensureOnLoginScreen();
-//
-//    }
+
 
 //@Test
 //public void testStockKeeperAddItemFlow() {
