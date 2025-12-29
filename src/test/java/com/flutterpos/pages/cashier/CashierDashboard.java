@@ -1,4 +1,4 @@
-package com.flutterpos.pages.stockKeeper;
+package com.flutterpos.pages.cashier;
 
 import io.appium.java_client.AppiumBy;
 import io.appium.java_client.AppiumDriver;
@@ -16,78 +16,99 @@ import java.time.Duration;
 import java.util.Collections;
 import java.util.List;
 
-public class AddProduct {
-
+public class CashierDashboard {
     private final AppiumDriver driver;
     private final WebDriverWait wait;
 
-    public AddProduct(AppiumDriver driver) {
+    public CashierDashboard(AppiumDriver driver) {
         this.driver = driver;
         this.wait = new WebDriverWait(driver, Duration.ofSeconds(15));
     }
 
-    private final By fieldProductName =
-            AppiumBy.xpath("//android.widget.EditText[@text='Product Name' or @hint='Product Name' or @content-desc='Product Name']");
-    private final By fieldInitialQuantity =
-            AppiumBy.xpath("//android.widget.EditText[@text='Initial Quantity (Optional)' or @hint='Initial Quantity (Optional)' or @content-desc='Initial Quantity (Optional)']");
-    private final By fieldUnitCost =
-            AppiumBy.xpath("//android.widget.EditText[@text='Unit Cost (Optional)' or @hint='Unit Cost (Optional)' or @content-desc='Unit Cost (Optional)']");
-    private final By fieldSalesPriceOptional =
-            AppiumBy.xpath("//android.widget.EditText[@text='Sales Price (Optional)' or @hint='Sales Price (Optional)' or @content-desc='Sales Price (Optional)']");
-    private final By fieldLowStock =
-            AppiumBy.xpath("//android.widget.EditText[@text='Low Stock Alert' or @hint='Low Stock Alert' or @content-desc='Low Stock Alert']");
-    private final By fieldReorderLevel =
-            AppiumBy.xpath("//android.widget.EditText[@text='Reorder Level' or @hint='0' or @content-desc='Reorder Level']");
-    private final By tapCategory =
-            AppiumBy.xpath("//*[contains(@text,'Category') or contains(@content-desc,'Category')]");
-    private final By tapBeverages =
-            AppiumBy.xpath("//*[contains(@text,'Beverages') or contains(@content-desc,'Beverages')]");
-    private final By tapSupplier =
-            AppiumBy.xpath("//*[contains(@text,'Supplier') or contains(@content-desc,'Supplier')]");
-    private final By tapABCTraders =
-            AppiumBy.xpath("//*[contains(@text,'ABC Traders') or contains(@content-desc,'ABC Traders')]");
-    private final By tapSave =
-            AppiumBy.xpath("//*[contains(@text,'Save Product') or contains(@content-desc,'Save Product')]");
+    private final By tapEnter =
+            AppiumBy.xpath("//*[contains(@text,'Enter') or contains(@content-desc,'Enter')]");
+    private final By tapBakery =
+            AppiumBy.xpath("//*[contains(@text,'Bakery') or contains(@content-desc,'Bakery')]");
+    private final By tapProduct =
+            AppiumBy.xpath("//*[contains(@text,'cb') or contains(@content-desc,'cb')]");
+    private final By tapAdd =
+            AppiumBy.xpath("//*[contains(@text,'Add') or contains(@content-desc,'Add')]");
+    private final By tapHome =
+            AppiumBy.xpath("//*[contains(@text,'Home') or contains(@content-desc,'Home')]");
+    private final By tapBook =
+            AppiumBy.xpath("//*[contains(@text,'Books') or contains(@content-desc,'Books')]");
+    private final By tapTomato =
+            AppiumBy.xpath("//*[contains(@text,'tomato') or contains(@content-desc,'tomato')]");
+    private final By tapFantaResult =
+            AppiumBy.xpath(
+                    "//*[(" +
+                            "contains(@text,'Fanta') or contains(@content-desc,'Fanta')" +
+                            ") and not(self::android.widget.EditText)]"
+            );
 
-    public void enterProductName(String name) {
-        enterText(fieldProductName, name);
-    }
-    public void enterInitialQuantity(String name) {
-        enterText(fieldInitialQuantity, name);
-    }
-    public void enterUnitCost(String name) {
-        enterText(fieldUnitCost, name);
-    }
-    public void enterSalesPrice(String name) {
-        enterText(fieldSalesPriceOptional, name);
-    }
 
-    public void enterLowStock(String name) {
-        enterText(fieldLowStock, name);
+    private final By fieldQuantity =
+            AppiumBy.xpath("//android.widget.EditText[@text='Quantity' or @hint='Quantity' or @content-desc='Quantity']");
+    private final By fieldSearch =
+            AppiumBy.xpath("//android.widget.EditText[@text='Search item or scan barcode...' or @hint='Search item or scan barcode...' or @content-desc='Search item or scan barcode...']");
+
+
+
+    public void tapEnter() {
+        clickTile(tapEnter, "Tap Enter Button");
     }
-    public void enterReorderLevel(String name) {
-        enterText(fieldReorderLevel, name);
-    }
-    public void tapCategory() {
-        clickTile(tapCategory, "Tap Category");
+    public void tapBakery() {
+        clickTile(tapBakery, "Tap Bakery Button");
 
     }
-    public void tapBeverages() {
-        clickTile(tapBeverages, "Tap books");
-
+    public void tapProduct() {
+        clickTile(tapProduct, "Tap Product Button");
     }
-    public void tapSupplier() {
-        clickTile(tapSupplier, "Tap Supplier");
-
+    public void tapAdd() {
+        clickTile(tapAdd, "Tap Add Button");
     }
-    public void tapABCTraders() {
-        clickTile(tapABCTraders, "Tap ABC Traders");
-
+    public void tapHome() {
+        clickTile(tapHome, "Tap Home Button");
     }
-    public void tapSave() {
-        clickTile(tapSave, "Tap Save Button");
-        driver.navigate().back();
+    public void tapBook() {
+        clickTile(tapBook, "Tap Book Button");
+    }
+    public void tapTomato() {
+        clickTile(tapTomato, "Tap Tomato Button");
+    }
 
+    public void tapFanta() {
+        System.out.println("[ACTION] Tap Fanta (search result)");
+
+        // Wait until at least one result appears (NOT the EditText)
+        wait.until(ExpectedConditions.presenceOfElementLocated(tapFantaResult));
+
+        // Sometimes multiple matches → choose the best visible one (lower on screen, not inside appbar)
+        List<WebElement> items = driver.findElements(tapFantaResult);
+        if (items.isEmpty()) throw new RuntimeException("Fanta result not found");
+
+        WebElement best = items.get(0);
+        int bestY = -1;
+
+        for (WebElement el : items) {
+            Rectangle r = el.getRect();
+            // ignore very top items (appbar/search)
+            if (r.getY() > 250 && r.getY() > bestY) {
+                best = el;
+                bestY = r.getY();
+            }
+        }
+
+        tapCenter(best);
+        System.out.println("[SUCCESS] Fanta tapped.");
+    }
+
+
+    public void enterQuantity(String name) {
+        enterText(fieldQuantity, name);
+    }
+    public void enterSearch(String name) {
+        enterText(fieldSearch, name);
     }
 
     /**
@@ -177,7 +198,6 @@ public class AddProduct {
 
         driver.perform(Collections.singletonList(tap));
     }
-
 
     // ---------- Reusable Method ----------
     private void enterText(By locator, String value) {

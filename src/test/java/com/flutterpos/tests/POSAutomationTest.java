@@ -1,6 +1,8 @@
 package com.flutterpos.tests;
 
 import com.flutterpos.pages.*;
+import com.flutterpos.pages.cashier.CashierDashboard;
+import com.flutterpos.pages.cashier.CashierLogoutPage;
 import com.flutterpos.pages.stockKeeper.*;
 import com.flutterpos.utils.AppiumDriverManager;
 import io.appium.java_client.android.AndroidDriver;
@@ -19,6 +21,7 @@ public class POSAutomationTest {
     private AddSupplier addSupplier;
     private AddNewCategory addNewCategory;
     private AddProduct addProduct;
+    private StockKeeperLogoutPage stockKeeperLogoutPage;
     private AddCategory addCategoryPage;
     private AddItem addItemPage;
     private InventoryPage inventoryPage;
@@ -26,6 +29,8 @@ public class POSAutomationTest {
     private ManagerFooter managerFooter;
     private ManagerReportPage managerReportPage;
     private SalesReport salesReport;
+    private CashierDashboard cashierDashboard;
+    private CashierLogoutPage cashierLogoutPage;
 
 
     @BeforeClass
@@ -46,112 +51,119 @@ public class POSAutomationTest {
         addSupplier = new AddSupplier(driver);
         addNewCategory = new AddNewCategory(driver);
         addProduct = new AddProduct(driver);
+        stockKeeperLogoutPage =  new StockKeeperLogoutPage(driver);
+        cashierDashboard = new CashierDashboard(driver);
+        cashierLogoutPage = new CashierLogoutPage(driver);
 
     }
 
+
+
     //Test 01
-//    @Test
-//    public void testRegisterPageFlow() {
-//        //1) Make sure app is in login state
-//        login.ensureOnLoginScreen();
-//        login.tapRegister();
-//
-//        registerPage.waitForInstallationPage();
-//
-//        // Step 1 (optional): you can keep blank values to skip
-//        registerPage.nextStep(
-//                "AasaIT POS",           // display name
-//                "AasaIT POS",                    // legal name
-//                "0771234567",          // phone
-//                "test@pos.lk",         // email
-//                "Anuradhapura",        // address
-//                "LKR",                 // currency
-//                "VAT",                 // tax regime
-//                "1234"                     // taxId
-//        );
-//
-//        // Step 2 (required)
-//        registerPage.fillManagerDetails(
-//                "Manager One",
-//                "manager1@pos.lk",
-//                "0779999999",
-//                "123456",
-//                "123456"
-//        );
-//    }
+    @Test(priority = 1)
+    public void testRegisterPageFlow() {
+        //1) Make sure app is in login state
+        login.ensureOnLoginScreen();
+        login.tapRegister();
+
+        registerPage.waitForInstallationPage();
+
+        // Step 1 (optional): you can keep blank values to skip
+        registerPage.nextStep(
+                "AasaIT POS",           // display name
+                "AasaIT POS",                    // legal name
+                "0771234567",          // phone
+                "test@pos.lk",         // email
+                "Anuradhapura",        // address
+                "LKR",                 // currency
+                "VAT",                 // tax regime
+                "1234"                     // taxId
+        );
+
+        // Step 2 (required)
+        registerPage.fillManagerDetails(
+                "Manager One",
+                "manager1@pos.lk",
+                "0779999999",
+                "123456",
+                "123456"
+        );
+    }
 
     //Test 02
-//    @Test
-//    public void testManagerDashboardFlow() {  //cashier@pos.local,stock@pos.local
-//
-//        login.ensureOnLoginScreen();
-//
-//        // 2) Login as Manager
-//        login.loginAsManager("manager@pos.local", "Manager@12345");
-//
-//        // 3) Verify dashboard
-//        Assert.assertTrue(dashboard.isDashboardVisible(), "Dashboard not visible after login");
-//
-//        managerFooter.navigateReports();
-//        managerFooter.navigateNotification();
-//        managerFooter.navigateSetting();
-//        managerFooter.navigateHome();
-//
-//        dashboard.openRegisteredUser();
-//        dashboard.openUserSettings();
-//        dashboard.openAuditLogs();
-//        dashboard.openCreditors();
-//        dashboard.openProfitDetail();
-//
-//        managerReportPage.clickReportFooterAndStay();
-//        managerReportPage.navigateDailySummary();
-//        managerReportPage.navigateReportHub();
-//        managerReportPage.navigateTopProducts();
-//        managerReportPage.navigateProfitSplit();
-//
-//        managerReportPage.navigateReportHubAndStay();
-//
-//        salesReport.openItemDetailsReport();
-//        managerReportPage.navigateReportHubAndStay();
-//        salesReport.openCustomerDetailsReport();
-//        managerReportPage.navigateReportHubAndStay();
-//        salesReport.openUserDetailsReport();
-//        managerReportPage.navigateReportHubAndStay();
-//        salesReport.openInvoiceListReport();
-//        managerReportPage.navigateReportHubAndStay();
-//        salesReport.openRefundBillsReport();
-//        managerReportPage.navigateReportHubAndStay();
-//        salesReport.openCardPayment();
-//        managerReportPage.navigateReportHubAndStay();
-//        salesReport.openCashPayment();
-//        managerReportPage.navigateReportHubAndStay();
-//        salesReport.openPaymentReport();
-//        managerReportPage.navigateReportHubAndStay();
-//        salesReport.openDailySalesReport();
-//        managerReportPage.navigateReportHubAndStay();
-////        salesReport.openProfitMarginsReport();
-//        salesReport.openCreditSalesReport();
-//        managerReportPage.navigateReportHubAndStay();
-//        salesReport.openCashEntryReport();
-//        managerReportPage.navigateReportHubAndStay();
-//        salesReport.openDiscountGranted();
-//        managerReportPage.navigateReportHubAndStay();
-//        salesReport.openUnpaidPurchaseReport();
-//        managerReportPage.navigateReportHubAndStay();
-//        salesReport.openSupplierListReport();
-//        managerReportPage.navigateReportHubAndStay();
-//        salesReport.openStockReport();
-//        managerReportPage.navigateReportHubAndStay();
-//        salesReport.openTransactionHistoryReport();
-//        managerReportPage.navigateReportHubAndStay();
-//        salesReport.openReorderHistoryReport();
-//        managerReportPage.navigateReportHubAndStay();
-//        salesReport.openLowStockWarningReport();
-//
-//    }
+    @Test(priority = 2)
+    public void testManagerDashboardFlow() {  //cashier@pos.local,stock@pos.local
+
+        login.ensureOnLoginScreen();
+
+        // 2) Login as Manager
+        login.loginAsManager("manager@pos.local", "Manager@12345");
+
+        // 3) Verify dashboard
+        Assert.assertTrue(dashboard.isDashboardVisible(), "Dashboard not visible after login");
+
+        managerFooter.navigateReports();
+        managerFooter.navigateNotification();
+        managerFooter.navigateSetting();
+        managerFooter.navigateHome();
+
+        dashboard.openRegisteredUser();
+        dashboard.openUserSettings();
+        dashboard.openAuditLogs();
+        dashboard.openCreditors();
+        dashboard.openProfitDetail();
+
+        managerReportPage.clickReportFooterAndStay();
+        managerReportPage.navigateDailySummary();
+        managerReportPage.navigateReportHub();
+        managerReportPage.navigateTopProducts();
+        managerReportPage.navigateProfitSplit();
+
+        managerReportPage.navigateReportHubAndStay();
+
+        salesReport.openItemDetailsReport();
+        managerReportPage.navigateReportHubAndStay();
+        salesReport.openCustomerDetailsReport();
+        managerReportPage.navigateReportHubAndStay();
+        salesReport.openUserDetailsReport();
+        managerReportPage.navigateReportHubAndStay();
+        salesReport.openInvoiceListReport();
+        managerReportPage.navigateReportHubAndStay();
+        salesReport.openRefundBillsReport();
+        managerReportPage.navigateReportHubAndStay();
+        salesReport.openCardPayment();
+        managerReportPage.navigateReportHubAndStay();
+        salesReport.openCashPayment();
+        managerReportPage.navigateReportHubAndStay();
+        salesReport.openPaymentReport();
+        managerReportPage.navigateReportHubAndStay();
+        salesReport.openDailySalesReport();
+        managerReportPage.navigateReportHubAndStay();
+//        salesReport.openProfitMarginsReport();
+        salesReport.openCreditSalesReport();
+        managerReportPage.navigateReportHubAndStay();
+        salesReport.openCashEntryReport();
+        managerReportPage.navigateReportHubAndStay();
+        salesReport.openDiscountGranted();
+        managerReportPage.navigateReportHubAndStay();
+        salesReport.openUnpaidPurchaseReport();
+        managerReportPage.navigateReportHubAndStay();
+        salesReport.openSupplierListReport();
+        managerReportPage.navigateReportHubAndStay();
+        salesReport.openStockReport();
+        managerReportPage.navigateReportHubAndStay();
+        salesReport.openTransactionHistoryReport();
+        managerReportPage.navigateReportHubAndStay();
+        salesReport.openReorderHistoryReport();
+        managerReportPage.navigateReportHubAndStay();
+        salesReport.openLowStockWarningReport();
+
+        stockKeeperLogoutPage.logout();
+
+    }
 
     //Test 03
-    @Test
+    @Test(priority = 3)
     public void testStockKeeperDashboardFlow() {
         // 1) Make sure app is in login state
         login.ensureOnLoginScreen();
@@ -188,6 +200,9 @@ public class POSAutomationTest {
         addProduct.enterLowStock("10");
         addProduct.tapCategory();
         addProduct.tapBeverages();
+        addProduct.tapSupplier();
+        addProduct.tapABCTraders();
+        addProduct.tapSave();
 
         stockKeeper.openAddCategory();
         stockKeeper.openAddItem();
@@ -209,10 +224,55 @@ public class POSAutomationTest {
         stockFooter.navigateTileAppearance();
         stockFooter.navigateHome();
 
-
-
-
+        stockKeeperLogoutPage.logout();
     }
+
+//Test 04
+@Test(priority = 4)
+public void testCasshierDashboardFlow() {
+    // 1) Make sure app is in login state
+    login.ensureOnLoginScreen();
+
+    // 2) Login as Manager
+    login.loginAsManager("cashier@pos.local", "12345678");
+
+    cashierDashboard.tapEnter();
+    cashierDashboard.tapBakery();
+    cashierDashboard.tapProduct();
+    cashierDashboard.tapAdd();
+
+    cashierDashboard.tapBakery();
+    cashierDashboard.tapProduct();
+    cashierDashboard.tapHome();
+
+    cashierDashboard.tapBakery();
+    cashierDashboard.tapProduct();
+    cashierDashboard.enterQuantity("3");
+    cashierDashboard.tapAdd();
+
+    cashierDashboard.enterSearch("Fanta");
+    cashierDashboard.tapFanta();
+    cashierDashboard.tapAdd();
+
+    cashierDashboard.tapBook();
+    cashierDashboard.tapTomato();
+    cashierDashboard.tapAdd();
+
+    cashierLogoutPage.logoutFromCashier();
+
+}
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 //    @Test
@@ -344,7 +404,6 @@ public class POSAutomationTest {
 //
 //        login.ensureOnLoginScreen();
     }
-
 
 
 //@Test
