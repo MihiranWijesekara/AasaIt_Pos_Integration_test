@@ -25,7 +25,7 @@ public class POSAutomationTest {
     private AddCategory addCategoryPage;
     private AddItem addItemPage;
     private InventoryPage inventoryPage;
-    private RegisterPage registerPage;
+    private RegisterPage2 registerPage;
     private ManagerFooter managerFooter;
     private ManagerReportPage managerReportPage;
     private SalesReport salesReport;
@@ -43,7 +43,7 @@ public class POSAutomationTest {
         addCategoryPage = new AddCategory(driver);
         addItemPage = new AddItem(driver);
         inventoryPage = new InventoryPage(driver);
-        registerPage = new RegisterPage(driver);
+        registerPage = new RegisterPage2(driver);
         managerFooter = new ManagerFooter(driver);
         managerReportPage = new ManagerReportPage(driver);
         salesReport = new SalesReport(driver);
@@ -66,28 +66,24 @@ public class POSAutomationTest {
         login.ensureOnLoginScreen();
         login.tapRegister();
 
-        registerPage.waitForInstallationPage();
+        registerPage.enterDisplayName("AasaIT POS");
+        registerPage.enterLegalName("AasaIT POS");
+        registerPage.enterPhone("0771234567");
+        registerPage.enterEmail("test@pos.lk");
+        registerPage.enterAddress("Anuradhapura");
+        registerPage.enterLKR("LKR");
+        registerPage.enterVAT("VAT");
+        registerPage.enterTaxID("1234");
+        registerPage.tapNext();
 
-        // Step 1 (optional): you can keep blank values to skip
-        registerPage.nextStep(
-                "AasaIT POS",           // display name
-                "AasaIT POS",                    // legal name
-                "0771234567",          // phone
-                "test@pos.lk",         // email
-                "Anuradhapura",        // address
-                "LKR",                 // currency
-                "VAT",                 // tax regime
-                "1234"                     // taxId
-        );
+        registerPage.enterFullNameField("Manager One");
+        registerPage.enterEmailSecField("manager1@pos.lk");
+        registerPage.enterContactNumberField("0779999999");
+        registerPage.getNICField("2002243613");
+        registerPage.enterPasswordField("1234eF@90g");
+        registerPage.enterConfirmPasswordField("1234eF@90g");
+        registerPage.tapFinish();
 
-        // Step 2 (required)
-        registerPage.fillManagerDetails(
-                "Manager One",
-                "manager1@pos.lk",
-                "0779999999",
-                "123456",
-                "123456"
-        );
     }
 
     //Test 02
@@ -139,7 +135,6 @@ public class POSAutomationTest {
         managerReportPage.navigateReportHubAndStay();
         salesReport.openDailySalesReport();
         managerReportPage.navigateReportHubAndStay();
-//        salesReport.openProfitMarginsReport();
         salesReport.openCreditSalesReport();
         managerReportPage.navigateReportHubAndStay();
         salesReport.openCashEntryReport();
