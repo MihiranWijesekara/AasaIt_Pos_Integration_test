@@ -146,15 +146,16 @@ public class ManagerDashboard {
         driver.navigate().back();
     }
 
+    public void openUserSettingsNotBack() {
+        clickTile(tileUserSettings, "User Settings Not Back");
+
+    }
+
     public void openAuditLogs() {
         clickTile(tileAuditLogs, "Audit Logs");
         driver.navigate().back();
     }
 
-//    public void openPromotions() {
-//        clickTile(tilePromotions, "Promotions");
-//        driver.navigate().back();
-//    }
 
     public void openCreditors() {
         clickTile(tileCreditors, "Creditors");

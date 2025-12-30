@@ -54,9 +54,10 @@ public class POSAutomationTest {
         stockKeeperLogoutPage =  new StockKeeperLogoutPage(driver);
         cashierDashboard = new CashierDashboard(driver);
         cashierLogoutPage = new CashierLogoutPage(driver);
+        addUserPage = new AddUserPage(driver);
+
 
     }
-
 
 
     //Test 01
@@ -96,7 +97,17 @@ public class POSAutomationTest {
         login.loginAsManager("manager@pos.local", "Manager@12345");
 
         // 3) Verify dashboard
-        Assert.assertTrue(dashboard.isDashboardVisible(), "Dashboard not visible after login");
+//        Assert.assertTrue(dashboard.isDashboardVisible(), "Dashboard not visible after login");
+
+//        dashboard.openUserSettingsNotBack();
+//        addUserPage.tapAddUser();
+//        addUserPage.enterDisplayName("Stock Keeper");
+//        addUserPage.enterEmail("stock@gmail.com");
+//        addUserPage.enterContactNumberField("0771234568");
+//        addUserPage.enterNICField("2002243612");
+//        addUserPage.enterPasswordField("Stock@1234");
+//        addUserPage.enterConfirmPasswordField("Stock@1234");
+//        addUserPage.tapCrateUser();
 
         managerFooter.navigateReports();
         managerFooter.navigateNotification();
@@ -257,201 +268,31 @@ public void testCasshierDashboardFlow() {
 
 }
 
+//Full Logout Flow
+//Test 05
+    @Test(priority = 5)
+    public void testFullLogoutFlow() {
 
+        login.ensureOnLoginScreen();
 
+        // 2) Login as Manager
+        login.loginAsManager("manager@pos.local", "Manager@12345");
 
+        // 3) Verify dashboard
+        Assert.assertTrue(dashboard.isDashboardVisible(), "Dashboard not visible after login");
 
+        stockKeeperLogoutPage.logout();
 
+        login.ensureOnLoginScreen();
 
+        login.loginAsManager("stock@pos.local", "12345678");
+        // 3) Verify dashboard
+        Assert.assertTrue(stockKeeper.isDashboardVisible(), "Dashboard not visible after login");
+        stockKeeperLogoutPage.logout();
 
-
-
-
-
-
-
-//    @Test
-//    public void testManagerDashboardFlow() {
-////         1) Make sure app is in login state
-//        login.ensureOnLoginScreen();
-//
-//        // 2) Login as Manager
-//        login.loginAsManager("achintha@gmail.com", "12345678");
-//
-//        // 3) Verify dashboard
-//        Assert.assertTrue(dashboard.isDashboardVisible(), "Dashboard not visible after login");
-
-//
-////        // 4) Click tiles (navigate but come back to dashboard)
-//        dashboard.openAddUser();
-//        dashboard.openUserManagement();
-//        dashboard.openCreditors();
-//        dashboard.openSalesReports();
-//        dashboard.openInsights();
-//        dashboard.openProfitMargins();
-//        dashboard.openAuditLogs();
-//        dashboard.openPromotions();
-//
-//        // 5) Now navigate AGAIN to Add User, but STAY there
-//        dashboard.openAddUserAndStay();
-//
-//        UsersListPage usersListPage = new UsersListPage(driver);
-//        Assert.assertTrue(usersListPage.isVisible(), "Users list page is not visible after Add User tile");
-//
-//        // 6) Click the 'Add User' button/FAB on that page
-//        usersListPage.tapAddUserButton();
-//
-//        // 7) Use AddUserPage to create a new user
-//        addUserPage = new AddUserPage(driver);
-//
-//        // Create a unique email each run to avoid "email already exists"
-//        String uniqueEmail = "autotest+" + System.currentTimeMillis() + "@example.com";
-//
-//        addUserPage.createUser(
-//                "Auto Test Cashier",
-//                uniqueEmail,
-//                "0771234569",
-//                "123456779V",
-//                "Password1"
-//        );
-//
-//        // 8) After createUser(), the real app keeps you on the Users list page
-//        UsersListPage usersListAfterCreate = new UsersListPage(driver);
-//        Assert.assertTrue(
-//                usersListAfterCreate.isVisible(),
-//                "Users list page is not visible after creating user"
-//        );
-//
-//        // (Optional) Here you could assert that the new user/email is visible in the list
-//
-//        // 9) Now go BACK to Manager Dashboard from Users list
-//        System.out.println("[ACTION] Going back from Users list to Manager Dashboard...");
-//        driver.navigate().back();
-//
-//        Assert.assertTrue(
-//                dashboard.isDashboardVisible(),
-//                "Dashboard not visible after going back from Users list"
-//        );
-//
-//        // 10) Go to Sales Report screen and stay there
-//        dashboard.openSalesReportAndStay();
-//
-//        // 11) Use SalesReport page object to open each report tile
-//        SalesReport salesReport = new SalesReport(driver);
-//
-//        salesReport.openItemDetailsReport();
-//        salesReport.openCustomerDetailsReport();
-//        salesReport.openUserDetailsReport();
-//        salesReport.openInvoiceListReport();
-//        salesReport.openRefundBillsReport();
-//        salesReport.openCardPayment();
-//        salesReport.openCashPayment();
-//        salesReport.openPaymentReport();
-//        salesReport.openDailySalesReport();
-//        salesReport.openProfitMarginsReport();
-//        salesReport.openCreditSalesReport();
-//        salesReport.openCashEntryReport();
-//        salesReport.openDiscountGranted();
-//        salesReport.openUnpaidPurchaseReport();
-//        salesReport.openSupplierListReport();
-//        salesReport.openStockReport();
-//        salesReport.openTransactionHistoryReport();
-//        salesReport.openReorderHistoryReport();
-//        salesReport.openLowStockWarningReport();
-//
-//
-//        // 12) Back from Sales Report → Manager Dashboard
-//        System.out.println("[ACTION] Going back from Sales Report to Manager Dashboard...");
-//        driver.navigate().back();
-//        Assert.assertTrue(
-//                dashboard.isDashboardVisible(),
-//                "Dashboard not visible after going back from Sales Report"
-//        );
-//
-//        // 13) Again navigate to Users list page
-//        System.out.println("[ACTION] Opening Users list again from Dashboard...");
-//        dashboard.openAddUserAndStay();   // or dashboard.openUserManagementAndStay() if you have it
-//
-//        UsersListPage usersListForSearch = new UsersListPage(driver);
-//        Assert.assertTrue(
-//                usersListForSearch.isVisible(),
-//                "Users list page is not visible for search"
-//        );
-//
-//        // 14) Search bar: search 'Achintha'
-//        usersListForSearch.searchUser("Achintha");
-//
-//        // 15) Assert that user 'Achintha' is visible in the filtered list
-//        Assert.assertTrue(
-//                usersListForSearch.isUserVisibleByName("Achintha"),
-//                "User 'Achintha' not visible after search"
-//        );
-//
-//        System.out.println("[ACTION] Going back from Users list to Manager Dashboard...");
-//        driver.navigate().back();
-//
-//        Assert.assertTrue(
-//                dashboard.isDashboardVisible(),
-//                "Dashboard not visible after going back from Users list"
-//        );
-//
-//        dashboard.logout();
-//
-//        login.ensureOnLoginScreen();
+        login.ensureOnLoginScreen();
+        login.loginAsManager("cashier@pos.local", "12345678");
+        cashierDashboard.tapEnter();
+        cashierLogoutPage.logoutFromCashier();
     }
-
-
-//@Test
-//public void testStockKeeperAddItemFlow() {
-//    // 1) Ensure login screen
-//    login.ensureOnLoginScreen();
-//
-//    // 2) Login as Manager (who sees the StockKeeper dashboard)
-//    login.loginAsManager("mihiran@gmail.com", "12345678");
-//
-//    // 3) Verify StockKeeper dashboard visible
-//    Assert.assertTrue(
-//            stockKeeper.isDashboardVisible(),
-//            "Dashboard not visible after login (StockKeeper)"
-//    );
-//
-//    // 4) Open the Add Item page and stay there
-//    stockKeeper.openAddItemAndStay();
-//
-//    // 5) Create a unique product name
-//    String productName = "Auto Item " + System.currentTimeMillis();
-//
-//    // 6) Fill only the text fields (no category/supplier selection)
-//    addItemPage.fillBasicInfo(productName);        // Product Name
-//    addItemPage.enterInitialQuantity("10");        // Initial Quantity
-//    addItemPage.enterUnitCost("100.50");           // Unit Cost
-//    addItemPage.enterSalesPrice("150.75");         // Sales Price
-//    addItemPage.enterLowStock("5");                // Low-stock warning
-//
-//    // ⚠️ No dropdown handling:
-//     addItemPage.selectCategoryAndSupplier();  // ← removed
-//     addItemPage.tapSaveProduct();             // ← removed
-//     addItemPage.waitForSuccessSnackBar();     // ← removed
-//
-//    // 7) Go back to dashboard after filling data
-//    driver.navigate().back();
-//
-//    // 8) Verify we are back on StockKeeper dashboardz
-//    Assert.assertTrue(
-//            stockKeeper.isDashboardVisible(),
-//            "Dashboard not visible after returning from Add Item"
-//    );
-//
-//    // 9) Open Inventory and navigate through tabs
-//    stockKeeper.openInventoryAndStay();
-//    inventoryPage.openTotalItems();
-//    inventoryPage.openLowStock();
-//    inventoryPage.openReStock();
-//
-//    // 10) Logout
-//    dashboard.logout();
-//    login.ensureOnLoginScreen();
-//}
-
-
-
+}

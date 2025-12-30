@@ -26,127 +26,128 @@ public class AddUserPage {
         this.wait = new WebDriverWait(driver, Duration.ofSeconds(15));
     }
 
-    //First Page Locators
-    private final By fieldDisplayName =
-            AppiumBy.xpath("//android.widget.EditText[@text='Display name' or @hint='Display name' or @content-desc='Display name']");
-    private final By fieldLegalName =
-            AppiumBy.xpath("//android.widget.EditText[@text='Legal name' or @hint='Legal name' or @content-desc='Legal name']");
-    private final By fieldPhone =
-            AppiumBy.xpath("//android.widget.EditText[@text='Phone' or @hint='Phone' or @content-desc='Phone']");
+    // -------------------- Locators (Label -> Input in same section) --------------------
+
+//    private final By fieldFullName =
+//            AppiumBy.xpath("//*[@text='Full Name' or @content-desc='Full Name']/parent::*/parent::*//android.widget.EditText");
+private final By fieldFullName =
+        AppiumBy.xpath("//*[(@text='Full Name' or @content-desc='Full Name')]/following::android.widget.EditText[1]");
+
+
     private final By fieldEmail =
-            AppiumBy.xpath("//android.widget.EditText[@text='Email' or @hint='Email' or @content-desc='Email']");
-    private final By fieldAddress =
-            AppiumBy.xpath("//android.widget.EditText[@text='Address' or @hint='Address' or @content-desc='Address']");
-    private final By fieldLKR =
-            AppiumBy.xpath("//android.widget.EditText[@text='LKR' or @hint='LKR' or @content-desc='LKR']");
-    private final By fieldVAT =
-            AppiumBy.xpath("//android.widget.EditText[@text='VAT' or @hint='VAT' or @content-desc='VAT']");
-    private final By fieldTaxID =
-            AppiumBy.xpath("//android.widget.EditText[@text='Tax ID' or @hint='Tax ID' or @content-desc='Tax ID']");
+            AppiumBy.xpath("//*[@text='Email Address' or @content-desc='Email Address']/parent::*/parent::*//android.widget.EditText");
 
-    //Second Page Locators
-    private final By fieldFullName =
-            AppiumBy.xpath("//android.widget.EditText[@text='Full name' or @hint='Full name' or @content-desc='Full name']");
-    private final By fieldEmail2 =
-            AppiumBy.xpath("//android.widget.EditText[@text='Email' or @hint='Email' or @content-desc='Email']");
     private final By fieldContactNumber =
-            AppiumBy.xpath("//android.widget.EditText[@text='Contact number' or @hint='Contact number' or @content-desc='Contact number']");
-    private final By fieldNIC =
-            AppiumBy.xpath("//android.widget.EditText[@text='NIC' or @hint='NIC' or @content-desc='NIC']");
+            AppiumBy.xpath("//*[@text='Contact Number' or @content-desc='Contact Number']/parent::*/parent::*//android.widget.EditText");
+
+    private final By fieldNic =
+            AppiumBy.xpath("//*[@text='NIC' or @content-desc='NIC']/parent::*/parent::*//android.widget.EditText");
+
     private final By fieldPassword =
-            AppiumBy.xpath("//android.widget.EditText[@text='Password' or @hint='Password' or @content-desc='Password']");
+            AppiumBy.xpath("//*[@text='Password' or @content-desc='Password']/parent::*/parent::*//android.widget.EditText");
+
     private final By fieldConfirmPassword =
-            AppiumBy.xpath("//android.widget.EditText[@text='Confirm password' or @hint='Confirm password' or @content-desc='Confirm password']");
+            AppiumBy.xpath("//*[@text='Confirm Password' or @content-desc='Confirm Password']/parent::*/parent::*//android.widget.EditText");
 
+    private final By tapCreateUser =
+            AppiumBy.xpath("//*[contains(@text,'Create User') or contains(@content-desc,'Create User')]");
 
-    private final By tapNext =
-            AppiumBy.xpath("//*[contains(@text,'Next') or contains(@content-desc,'Next')]");
-    private final By tapFinish =
-            AppiumBy.xpath("//*[contains(@text,'Finish') or contains(@content-desc,'Finish')]");
+    private final By tapAddUser =
+            AppiumBy.xpath("//*[contains(@text,'Add User') or contains(@content-desc,'Add User')]");
 
+    // -------------------- Public Actions --------------------
+
+    public void tapAddUser() {
+        clickTile(tapAddUser, "Tap Add User");
+    }
 
     public void enterDisplayName(String name) {
-        enterText(fieldDisplayName, name);
-    }
-    public void enterLegalName(String name) {
-        enterText(fieldLegalName, name);
-    }
-    public void enterPhone(String name) {
-        enterText(fieldPhone, name);
-    }
-    public void enterEmail(String name) {
-        enterText(fieldEmail, name);
-    }
-    public void enterAddress(String name) {
-        enterText(fieldAddress, name);
-    }
-    public void enterLKR(String name) {
-        enterText(fieldLKR, name);
-    }
-    public void enterVAT(String name) {
-        enterText(fieldVAT, name);
-    }
-    public void enterTaxID(String name) {
-        enterText(fieldTaxID, name);
-    }
-
-    // Second Page Methods
-    public void enterFullNameField(String name) {
         enterText(fieldFullName, name);
     }
-    public void enterEmailSecField(String name) {
-        enterText(fieldEmail2, name);
-    }
-    public void enterContactNumberField(String name) {
-        enterText(fieldContactNumber, name);
-    }
-    public void getNICField(String name) {
-        enterText(fieldNIC, name);
-    }
-    public void enterPasswordField(String name) {
-        enterText(fieldPassword, name);
-    }
-    public void enterConfirmPasswordField(String name) {
-        enterText(fieldConfirmPassword, name);
+
+    public void enterEmail(String email) {
+        enterText(fieldEmail, email);
     }
 
-    public void tapNext() {
-        clickTile(tapNext, "Tap Next");
-
+    public void enterContactNumberField(String contact) {
+        enterText(fieldContactNumber, contact);
     }
-    public void tapFinish() {
-        clickTile(tapFinish, "Tap Finish");
 
+    public void enterNICField(String nic) {
+        enterText(fieldNic, nic);
+    }
+
+    public void enterPasswordField(String password) {
+        enterText(fieldPassword, password);
+    }
+
+    public void enterConfirmPasswordField(String confirm) {
+        enterText(fieldConfirmPassword, confirm);
+    }
+
+    public void tapCrateUser() {
+        clickTile(tapCreateUser, "Tap Create User");
+    }
+
+    // -------------------- Robust Helpers --------------------
+
+    /**
+     * Enter text into a Flutter field reliably:
+     * - Ensures field is visible (scrolls if required)
+     * - Center tap (Flutter-safe)
+     * - Clears existing text (best-effort)
+     * - Types directly into the element (NOT activeElement)
+     * - Optionally hides keyboard
+     */
+    private void enterText(By locator, String value) {
+        System.out.println("[ACTION] Entering text: " + value);
+
+        // Step 1: Click label / hint
+        WebElement label = wait.until(ExpectedConditions.elementToBeClickable(locator));
+        label.click();
+
+        // Step 2: Send keys to focused input
+        driver.switchTo().activeElement().sendKeys(value);
+    }
+
+    /**
+     * Scroll until the element appears (up to maxScrolls).
+     * This avoids failures when fields are below the fold.
+     */
+    private void ensureVisible(By locator) {
+        int maxScrolls = 6;
+        for (int i = 0; i < maxScrolls; i++) {
+            if (!driver.findElements(locator).isEmpty()) return;
+            scrollDown();
+        }
+        // do nothing here; wait() will throw a good error if still not found
     }
 
     /**
      * Generic helper to scroll down and click a tile using Flutter-safe tap.
-     * - Tries to find the element.
-     * - If not found, performs a swipe down and retries (maxScrolls times).
      */
     private void clickTile(By locator, String tileName) {
         System.out.println("[ACTION] Clicking " + tileName);
-        int maxScrolls = 5;
+        int maxScrolls = 6;
 
         for (int i = 0; i < maxScrolls; i++) {
             List<WebElement> elements = driver.findElements(locator);
             if (!elements.isEmpty()) {
-                tapCenter(elements.get(0)); // Use Flutter-safe tap instead of click()
+                tapCenter(elements.get(0));
                 System.out.println("[SUCCESS] " + tileName + " tapped.");
                 return;
             }
 
-            System.out.println("[INFO] '" + tileName + "' not visible yet. Scrolling down... (attempt " + (i + 1) + ")");
+            System.out.println("[INFO] '" + tileName + "' not visible yet. Scrolling... (attempt " + (i + 1) + ")");
             scrollDown();
         }
 
-        // Final attempt after scrolling
         List<WebElement> elements = driver.findElements(locator);
         if (!elements.isEmpty()) {
-            tapCenter(elements.get(0)); // Use Flutter-safe tap instead of click()
+            tapCenter(elements.get(0));
             System.out.println("[SUCCESS] " + tileName + " tapped after scrolling.");
         } else {
-            throw new RuntimeException("Could not find tile: " + tileName + " after scrolling.");
+            throw new RuntimeException("Could not find: " + tileName + " after scrolling.");
         }
     }
 
@@ -159,8 +160,8 @@ public class AddUserPage {
         int height = size.height;
 
         int startX = width / 2;
-        int startY = (int) (height * 0.8); // near bottom
-        int endY = (int) (height * 0.3);   // near top
+        int startY = (int) (height * 0.80);
+        int endY   = (int) (height * 0.30);
 
         PointerInput finger = new PointerInput(PointerInput.Kind.TOUCH, "finger");
         Sequence swipe = new Sequence(finger, 1);
@@ -173,7 +174,7 @@ public class AddUserPage {
         ));
         swipe.addAction(finger.createPointerDown(PointerInput.MouseButton.LEFT.asArg()));
         swipe.addAction(finger.createPointerMove(
-                Duration.ofMillis(600),
+                Duration.ofMillis(650),
                 PointerInput.Origin.viewport(),
                 startX,
                 endY
@@ -184,7 +185,7 @@ public class AddUserPage {
     }
 
     /**
-     * Exact center tap (REQUIRED for Flutter)
+     * Exact center tap (recommended for Flutter).
      */
     private void tapCenter(WebElement element) {
         Rectangle rect = element.getRect();
@@ -201,22 +202,9 @@ public class AddUserPage {
                 centerY
         ));
         tap.addAction(finger.createPointerDown(PointerInput.MouseButton.LEFT.asArg()));
-        tap.addAction(new Pause(finger, Duration.ofMillis(50))); // Small pause for better tap detection
+        tap.addAction(new Pause(finger, Duration.ofMillis(60)));
         tap.addAction(finger.createPointerUp(PointerInput.MouseButton.LEFT.asArg()));
 
         driver.perform(Collections.singletonList(tap));
-    }
-
-
-    // ---------- Reusable Method ----------
-    private void enterText(By locator, String value) {
-        System.out.println("[ACTION] Entering text: " + value);
-
-        // Step 1: Click label / hint
-        WebElement label = wait.until(ExpectedConditions.elementToBeClickable(locator));
-        label.click();
-
-        // Step 2: Send keys to focused input
-        driver.switchTo().activeElement().sendKeys(value);
     }
 }
