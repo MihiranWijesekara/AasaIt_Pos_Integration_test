@@ -31,6 +31,7 @@ public class POSAutomationTest {
     private SalesReport salesReport;
     private CashierDashboard cashierDashboard;
     private CashierLogoutPage cashierLogoutPage;
+    private InventoryManagement inventoryManagement;
 
 
     @BeforeClass
@@ -55,6 +56,7 @@ public class POSAutomationTest {
         cashierDashboard = new CashierDashboard(driver);
         cashierLogoutPage = new CashierLogoutPage(driver);
         addUserPage = new AddUserPage(driver);
+        inventoryManagement = new InventoryManagement(driver);
 
 
     }
@@ -294,5 +296,45 @@ public void testCasshierDashboardFlow() {
         login.loginAsManager("cashier@pos.local", "12345678");
         cashierDashboard.tapEnter();
         cashierLogoutPage.logoutFromCashier();
+    }
+
+    @Test(priority = 6)
+    public void testInventoryManagement() {
+
+        login.ensureOnLoginScreen();
+
+        // 2) Login as Manager
+        login.loginAsManager("stock@pos.local", "12345678");
+
+        // 3) Verify dashboard
+        Assert.assertTrue(stockKeeper.isDashboardVisible(), "Dashboard not visible after login");
+
+        inventoryManagement.openInventoryNotBack();
+
+        inventoryManagement.tapTotalItems();
+        inventoryManagement.tapLowStock();
+        inventoryManagement.tapReStock();
+
+    }
+
+    //Test 07
+    @Test(priority = 7)
+    public void testManagerDashboardScrollerFlow() {
+
+        // 1) Ensure we are on login screen
+        login.ensureOnLoginScreen();
+
+        // 2) Login as Manager
+        login.loginAsManager("manager@pos.local", "Manager@12345");
+
+        // 3) Verify dashboard visible
+        Assert.assertTrue(dashboard.isDashboardVisible(), "Dashboard not visible after login");
+
+        // 4) Wait 10 seconds then scroll (your requirement)
+        ManagerScrollerView scroller = new ManagerScrollerView(driver);
+        scroller.wait10SecondsThenScrollDown();
+
+        // (Optional) You can add a small assertion after scroll if you have a bottom element
+        // Assert.assertTrue(dashboard.isSomeElementVisibleAfterScroll(), "Scroll didn't move to expected section");
     }
 }

@@ -148,7 +148,7 @@ public class stockKeeperDashboard {
         tapBackButton();
     }
     public void openInventory() {
-        clickTile(tileInventory, "Sales Report");
+        clickTile(tileInventory, "Inventory ");
         tapBackButton();
     }
 
