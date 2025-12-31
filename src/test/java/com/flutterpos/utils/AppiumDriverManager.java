@@ -15,7 +15,7 @@ public class AppiumDriverManager {
 
     private static final String UDID = "emulator-5554";
 
-    private static final String APP_PATH = "C:\\Users\\HP\\Desktop\\POS-APK\\New-reales\\app-release.apk";
+    private static final String APP_PATH = "C:\\Users\\HP\\Desktop\\POS-APK\\New-reales-01\\app-release.apk";
     private static final String APP_PACKAGE = "com.example.pos";
     private static final String APP_ACTIVITY = "com.example.pos.MainActivity";
     private static final String APP_WAIT_ACTIVITY = "com.example.pos.MainActivity";

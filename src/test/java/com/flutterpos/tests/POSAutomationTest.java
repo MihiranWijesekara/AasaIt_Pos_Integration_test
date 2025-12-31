@@ -82,7 +82,7 @@ public class POSAutomationTest {
         registerPage.enterFullNameField("Manager One");
         registerPage.enterEmailSecField("manager1@pos.lk");
         registerPage.enterContactNumberField("0779999999");
-        registerPage.getNICField("2002243613");
+        registerPage.getNICField("200224103410");
         registerPage.enterPasswordField("1234eF@90g");
         registerPage.enterConfirmPasswordField("1234eF@90g");
         registerPage.tapFinish();
@@ -100,16 +100,6 @@ public class POSAutomationTest {
 
         // 3) Verify dashboard
 //        Assert.assertTrue(dashboard.isDashboardVisible(), "Dashboard not visible after login");
-
-//        dashboard.openUserSettingsNotBack();
-//        addUserPage.tapAddUser();
-//        addUserPage.enterDisplayName("Stock Keeper");
-//        addUserPage.enterEmail("stock@gmail.com");
-//        addUserPage.enterContactNumberField("0771234568");
-//        addUserPage.enterNICField("2002243612");
-//        addUserPage.enterPasswordField("Stock@1234");
-//        addUserPage.enterConfirmPasswordField("Stock@1234");
-//        addUserPage.tapCrateUser();
 
         managerFooter.navigateReports();
         managerFooter.navigateNotification();
@@ -171,7 +161,7 @@ public class POSAutomationTest {
     }
 
     //Test 03
-    @Test(priority = 3)
+    @Test(priority = 1)
     public void testStockKeeperDashboardFlow() {
         // 1) Make sure app is in login state
         login.ensureOnLoginScreen();
